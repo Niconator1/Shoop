@@ -1,0 +1,15 @@
+name: Shoop
+version: 1.5
+description: >
+  Recreation of shoop
+
+author: Niconator1
+main: main.ShoopProject
+load: STARTUP
+
+commands:
+    remove:
+        description: Remove all entitys
+    shoop:
+        description: Gives shoop armor
+        
