@@ -28,8 +28,8 @@ public class EventManager implements Listener {
 					Location l = p.getLocation();
 					double xo = Math.cos(yaw);
 					double zo = -Math.sin(yaw);
-					Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.4);
-					l.add(vo.getX(), -0.5, vo.getZ());
+					Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
+					l.add(vo.getX(), -0.45, vo.getZ());
 					ArmorStand f = (ArmorStand) p.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
 					CraftArmorStand a = (CraftArmorStand) f;
 					a.getHandle().noclip = true;

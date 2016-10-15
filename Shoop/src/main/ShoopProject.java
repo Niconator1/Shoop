@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
@@ -82,6 +83,24 @@ public class ShoopProject extends JavaPlugin {
 						cooldown.remove(i);
 					}
 				}
+				// Block collision check
+				for (int i = 0; i < bolt.size(); i++) {
+					Lightningbolt b = bolt.get(i);
+					ArmorStand stand = b.getStand();
+					Location mid = stand.getEyeLocation();
+					double bonuslengthf = 0.75;
+					double bonuslengthb = -1.5;
+					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
+						Vector dir = b.getVector().clone().normalize().multiply(j);
+						Location midm = mid.clone().add(dir);
+						Block c = midm.getBlock();
+						if (c.getType().isSolid()) {
+							stand.remove();
+							bolt.remove(i);
+							break;
+						}
+					}
+				}
 				// Hit registration
 				for (int i = 0; i < bolt.size(); i++) {
 					Lightningbolt b = bolt.get(i);
@@ -95,39 +114,43 @@ public class ShoopProject extends JavaPlugin {
 					for (LivingEntity le : stand.getWorld().getLivingEntities()) {
 						if (!(le instanceof ArmorStand)) {
 							if (le.getUniqueId().compareTo(b.getShoop().getUniqueId()) != 0) {
-								Location enemy = le.getLocation();
-								for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
-									Vector dir = b.getVector().clone().normalize().multiply(j);
-									Location midm = mid.clone().add(dir);
-									if (Math.abs(enemy.getX() - midm.getX()) <= 0.35 + bonusxz) {
-										if (Math.abs(enemy.getZ() - midm.getZ()) <= 0.35 + bonusxz) {
-											double dy = enemy.getY() - midm.getY();
-											if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
-												sendSoundPacket(b.getShoop(), "entity.arrow.hit_player",
-														b.getShoop().getLocation());
+								if (b.canHit(le)) {
+									Location enemy = le.getLocation();
+									for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
+										Vector dir = b.getVector().clone().normalize().multiply(j);
+										Location midm = mid.clone().add(dir);
+										if (Math.abs(enemy.getX() - midm.getX()) <= 0.35 + bonusxz) {
+											if (Math.abs(enemy.getZ() - midm.getZ()) <= 0.35 + bonusxz) {
+												double dy = enemy.getY() - midm.getY();
+												if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
+													sendSoundPacket(b.getShoop(), "entity.arrow.hit_player",
+															b.getShoop().getLocation());
+													b.addHitted(le);
+												}
 											}
 										}
 									}
-								}
-								if (enemy.distance(b.getShoop().getLocation()) < 5 && debughitbox == true) {
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
-											.add(new Vector(0.35 + bonusxz, 1.8 + bonusy, -0.35 - bonusxz)), 1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
-											.add(new Vector(-0.35 - bonusxz, 1.8 + bonusy, -0.35 - bonusxz)), 1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
-											enemy.clone().add(new Vector(0.35 + bonusxz, 1.8 + bonusy, 0.35 + bonusxz)),
-											1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
-											.add(new Vector(-0.35 - bonusxz, 1.8 + bonusy, 0.35 + bonusxz)), 1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
-											enemy.clone().add(new Vector(0.35 + bonusxz, -bonusy, -0.35 - bonusxz)), 1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
-											enemy.clone().add(new Vector(-0.35 - bonusxz, -bonusy, -0.35 - bonusxz)),
-											1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
-											enemy.clone().add(new Vector(0.35 + bonusxz, -bonusy, 0.35 + bonusxz)), 1);
-									sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
-											enemy.clone().add(new Vector(-0.35 - bonusxz, -bonusy, 0.35 + bonusxz)), 1);
+									if (enemy.distance(b.getShoop().getLocation()) < 5 && debughitbox == true) {
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
+												.add(new Vector(0.35 + bonusxz, 1.8 + bonusy, -0.35 - bonusxz)), 1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
+												.add(new Vector(-0.35 - bonusxz, 1.8 + bonusy, -0.35 - bonusxz)), 1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
+												.add(new Vector(0.35 + bonusxz, 1.8 + bonusy, 0.35 + bonusxz)), 1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
+												.add(new Vector(-0.35 - bonusxz, 1.8 + bonusy, 0.35 + bonusxz)), 1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
+												enemy.clone().add(new Vector(0.35 + bonusxz, -bonusy, -0.35 - bonusxz)),
+												1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME, enemy.clone()
+												.add(new Vector(-0.35 - bonusxz, -bonusy, -0.35 - bonusxz)), 1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
+												enemy.clone().add(new Vector(0.35 + bonusxz, -bonusy, 0.35 + bonusxz)),
+												1);
+										sendParticlePacket(b.getShoop(), EnumParticle.FLAME,
+												enemy.clone().add(new Vector(-0.35 - bonusxz, -bonusy, 0.35 + bonusxz)),
+												1);
+									}
 								}
 							}
 						}
