@@ -95,6 +95,9 @@ public class ShoopProject extends JavaPlugin {
 						Location midm = mid.clone().add(dir);
 						Block c = midm.getBlock();
 						if (c.getType().isSolid()) {
+							if (b.isPassive()) {
+								b.getStand().setPassenger(null);
+							}
 							stand.remove();
 							bolt.remove(i);
 							break;
@@ -155,13 +158,33 @@ public class ShoopProject extends JavaPlugin {
 							}
 						}
 					}
-					if (mid.distance(b.start()) > 70) {
-						b.getStand().remove();
-						bolt.remove(i);
+					if (b.isPassive()) {
+						if (mid.distance(b.start()) >= 55) {
+							b.getStand().setPassenger(null);
+							b.getStand().remove();
+							bolt.remove(i);
+						}
+					} else {
+						if (mid.distance(b.start()) > 70) {
+							b.getStand().remove();
+							bolt.remove(i);
+						}
 					}
 				}
 			}
 		}, 0, 1);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					if (p.getLevel() < 100) {
+						p.setLevel(p.getLevel() + 1);
+						float pro = p.getLevel() / (100 + 0.000001f);
+						p.setExp(pro);
+					}
+				}
+			}
+		}, 0, 2);
 	}
 
 	public ItemStack addColor(ItemStack item, Color c) {

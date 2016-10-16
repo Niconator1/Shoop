@@ -14,13 +14,15 @@ public class Lightningbolt {
 	private Player shoop;
 	private double damage = 1.5;
 	private Location start;
+	private boolean isPassive;
 	private ArrayList<LivingEntity> hitted = new ArrayList<LivingEntity>();
 
-	public Lightningbolt(ArmorStand f, Vector v, Player shoop, Location start) {
+	public Lightningbolt(ArmorStand f, Vector v, Player shoop, Location start, boolean passive) {
 		this.a = f;
 		this.v = v;
 		this.shoop = shoop;
 		this.start = start;
+		this.isPassive = passive;
 	}
 
 	public ArmorStand getStand() {
@@ -45,6 +47,10 @@ public class Lightningbolt {
 
 	public void addHitted(LivingEntity p) {
 		hitted.add(p);
+	}
+
+	public boolean isPassive() {
+		return isPassive;
 	}
 
 	public boolean canHit(LivingEntity p) {
