@@ -15,6 +15,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -61,9 +62,29 @@ public class ShoopProject extends JavaPlugin {
 				p.getInventory()
 						.setLeggings(addColor(new ItemStack(Material.LEATHER_LEGGINGS), Color.fromRGB(0x201C1D)));
 				p.getInventory().setBoots(addColor(new ItemStack(Material.LEATHER_BOOTS), Color.fromRGB(0x009E10)));
+				p.getInventory().setItem(0, getBoltItem());
 			}
 		}
 		return false;
+	}
+
+	private ItemStack getBoltItem() {
+		ItemStack is = new ItemStack(Material.RAW_BEEF);
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(ChatColor.GREEN + "Lightning Bolt " + ChatColor.GRAY + "-" + ChatColor.AQUA + " Right Click");
+		ArrayList<String> lore = new ArrayList<String>();
+		lore.add("");
+		lore.add(ChatColor.AQUA + "Right Click " + ChatColor.GRAY + "to throw a");
+		lore.add(ChatColor.GRAY + "bolt of lightning towards the");
+		lore.add(ChatColor.GRAY + "targeted location, dealing");
+		lore.add(ChatColor.GRAY + "damage to anyone it passes");
+		lore.add(ChatColor.GRAY + "through. Grants " + ChatColor.GREEN + "1" + ChatColor.GRAY + " charge of");
+		lore.add(ChatColor.GREEN + "Charged Lazor " + ChatColor.GRAY + "per enemy");
+		lore.add(ChatColor.GRAY + "hit. A maximum of " + ChatColor.GREEN + "5" + ChatColor.GRAY + " charges");
+		lore.add(ChatColor.GRAY + "can be stored.");
+		im.setLore(lore);
+		is.setItemMeta(im);
+		return is;
 	}
 
 	private void loopsShoop() {
