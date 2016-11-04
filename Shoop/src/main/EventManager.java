@@ -11,9 +11,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import net.minecraft.server.v1_10_R1.EnumParticle;
 
 public class EventManager implements Listener {
 	@EventHandler
@@ -117,5 +120,24 @@ public class EventManager implements Listener {
 			p.setFoodLevel(20);
 			event.setCancelled(true);
 		}
+	}
+
+	@EventHandler
+	public void registerSlotSwitch(PlayerItemHeldEvent event) {
+		Player p = event.getPlayer();
+		if (event.getNewSlot() == 1) {
+			double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+			double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+			double x = Math.sin(pitch) * Math.cos(yaw);
+			double y = Math.cos(pitch);
+			double z = Math.sin(pitch) * Math.sin(yaw);
+			Vector v = new Vector(x, y, z).normalize().multiply(0.5);
+			Location b = p.getEyeLocation();
+			for (int i = 0; i < 120; i++) {
+				b.add(v);
+				ShoopProject.sendParticlePacket(p, EnumParticle.FLAME, b, 1);
+			}
+		}
+		p.getInventory().setHeldItemSlot(0);
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,8 +14,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -56,35 +53,15 @@ public class ShoopProject extends JavaPlugin {
 		} else if (cmd.getName().equalsIgnoreCase("shoop")) {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
-				p.getInventory().setHelmet(new ItemStack(Material.CARPET, 1, (short) 1));
-				p.getInventory()
-						.setChestplate(addColor(new ItemStack(Material.LEATHER_CHESTPLATE), Color.fromRGB(0x009E10)));
-				p.getInventory()
-						.setLeggings(addColor(new ItemStack(Material.LEATHER_LEGGINGS), Color.fromRGB(0x201C1D)));
-				p.getInventory().setBoots(addColor(new ItemStack(Material.LEATHER_BOOTS), Color.fromRGB(0x009E10)));
-				p.getInventory().setItem(0, getBoltItem());
+				p.getInventory().setHelmet(ItemStackManipulation.getShoopHelmet());
+				p.getInventory().setChestplate(ItemStackManipulation.getShoopChestplate());
+				p.getInventory().setLeggings(ItemStackManipulation.getShoopLeggings());
+				p.getInventory().setBoots(ItemStackManipulation.getShoopBoots());
+				p.getInventory().setItem(0, ItemStackManipulation.getBoltItem());
+				p.getInventory().setItem(1, ItemStackManipulation.getChargedItem(0));
 			}
 		}
 		return false;
-	}
-
-	private ItemStack getBoltItem() {
-		ItemStack is = new ItemStack(Material.RAW_BEEF);
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.GREEN + "Lightning Bolt " + ChatColor.GRAY + "-" + ChatColor.AQUA + " Right Click");
-		ArrayList<String> lore = new ArrayList<String>();
-		lore.add("");
-		lore.add(ChatColor.AQUA + "Right Click " + ChatColor.GRAY + "to throw a");
-		lore.add(ChatColor.GRAY + "bolt of lightning towards the");
-		lore.add(ChatColor.GRAY + "targeted location, dealing");
-		lore.add(ChatColor.GRAY + "damage to anyone it passes");
-		lore.add(ChatColor.GRAY + "through. Grants " + ChatColor.GREEN + "1" + ChatColor.GRAY + " charge of");
-		lore.add(ChatColor.GREEN + "Charged Lazor " + ChatColor.GRAY + "per enemy");
-		lore.add(ChatColor.GRAY + "hit. A maximum of " + ChatColor.GREEN + "5" + ChatColor.GRAY + " charges");
-		lore.add(ChatColor.GRAY + "can be stored.");
-		im.setLore(lore);
-		is.setItemMeta(im);
-		return is;
 	}
 
 	private void loopsShoop() {
@@ -149,7 +126,9 @@ public class ShoopProject extends JavaPlugin {
 												if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
 													sendSoundPacket(b.getShoop(), "entity.arrow.hit_player",
 															b.getShoop().getLocation());
-													b.addHitted(le);
+													b.addHitted(le.getUniqueId());
+													addCharge(b.getShoop(), 1);
+													break;
 												}
 											}
 										}
@@ -208,11 +187,21 @@ public class ShoopProject extends JavaPlugin {
 		}, 0, 2);
 	}
 
-	public ItemStack addColor(ItemStack item, Color c) {
-		LeatherArmorMeta lch = (LeatherArmorMeta) item.getItemMeta();
-		lch.setColor(c);
-		item.setItemMeta(lch);
-		return item;
+	public static void addCharge(Player shoop, int i) {
+		ItemStack is = shoop.getInventory().getItem(1);
+		if (is.getType() == Material.IRON_PICKAXE) {
+			if (i > 5) {
+				i = 5;
+			}
+			shoop.getInventory().setItem(1, ItemStackManipulation.getChargedItem(i));
+		} else {
+			if (i + is.getAmount() > 5) {
+				i = 5;
+			} else {
+				i += is.getAmount();
+			}
+			shoop.getInventory().setItem(1, ItemStackManipulation.getChargedItem(i));
+		}
 	}
 
 	public static boolean isBoltReady(Player p) {

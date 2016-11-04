@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
@@ -15,7 +16,7 @@ public class Lightningbolt {
 	private double damage = 1.5;
 	private Location start;
 	private boolean isPassive;
-	private ArrayList<LivingEntity> hitted = new ArrayList<LivingEntity>();
+	private ArrayList<UUID> hitted = new ArrayList<UUID>();
 
 	public Lightningbolt(ArmorStand f, Vector v, Player shoop, Location start, boolean passive) {
 		this.a = f;
@@ -45,7 +46,7 @@ public class Lightningbolt {
 		return damage;
 	}
 
-	public void addHitted(LivingEntity p) {
+	public void addHitted(UUID p) {
 		hitted.add(p);
 	}
 
@@ -55,7 +56,7 @@ public class Lightningbolt {
 
 	public boolean canHit(LivingEntity p) {
 		for (int i = 0; i < hitted.size(); i++) {
-			if (hitted.get(i).getUniqueId().compareTo(p.getUniqueId()) == 0) {
+			if (hitted.get(i).compareTo(p.getUniqueId()) == 0) {
 				return false;
 			}
 		}
