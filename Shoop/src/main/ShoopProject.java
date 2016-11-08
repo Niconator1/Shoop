@@ -127,7 +127,12 @@ public class ShoopProject extends JavaPlugin {
 													sendSoundPacket(b.getShoop(), "entity.arrow.hit_player",
 															b.getShoop().getLocation());
 													b.addHitted(le.getUniqueId());
-													addCharge(b.getShoop(), 1);
+													if(b.isPassive()){
+														addCharges(b.getShoop(), 5);
+													}
+													else{
+														addCharges(b.getShoop(), 1);
+													}
 													break;
 												}
 											}
@@ -187,7 +192,7 @@ public class ShoopProject extends JavaPlugin {
 		}, 0, 2);
 	}
 
-	public static void addCharge(Player shoop, int i) {
+	public static void addCharges(Player shoop, int i) {
 		ItemStack is = shoop.getInventory().getItem(1);
 		if (is.getType() == Material.IRON_PICKAXE) {
 			if (i > 5) {
@@ -201,6 +206,19 @@ public class ShoopProject extends JavaPlugin {
 				i += is.getAmount();
 			}
 			shoop.getInventory().setItem(1, ItemStackManipulation.getChargedItem(i));
+		}
+	}
+
+	public static void setCharges(Player shoop, int i) {
+		shoop.getInventory().setItem(1, ItemStackManipulation.getChargedItem(0));
+	}
+
+	public static int getCharges(Player shoop) {
+		ItemStack is = shoop.getInventory().getItem(1);
+		if (is.getType() == Material.IRON_PICKAXE) {
+			return 0;
+		} else {
+			return is.getAmount();
 		}
 	}
 
@@ -259,5 +277,35 @@ public class ShoopProject extends JavaPlugin {
 		PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles(type, true, (float) x, (float) y,
 				(float) z, vx, vy, vz, v, count, null);
 		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+	}
+
+	public static void sendPublicSoundPacket(String sound, Location l) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			sendSoundPacket(p, sound, l);
+		}
+	}
+
+	public static void sendPublicParticlePacket(EnumParticle type, double x, double y, double z, float vx, float vy,
+			float vz, float v, int count) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			sendParticlePacket(p, type, x, y, z, vx, vy, vz, v, count);
+		}
+	}
+	public static final Vector rotateAroundAxisX(Vector v, double angle) {
+		double y, z, cos, sin;
+		cos = Math.cos(angle);
+		sin = Math.sin(angle);
+		y = v.getY() * cos - v.getZ() * sin;
+		z = v.getY() * sin + v.getZ() * cos;
+		return v.setY(y).setZ(z);
+	}
+
+	public static final Vector rotateAroundAxisY(Vector v, double angle) {
+		double x, z, cos, sin;
+		cos = Math.cos(angle);
+		sin = Math.sin(angle);
+		x = v.getX() * cos + v.getZ() * sin;
+		z = v.getX() * -sin + v.getZ() * cos;
+		return v.setX(x).setZ(z);
 	}
 }
