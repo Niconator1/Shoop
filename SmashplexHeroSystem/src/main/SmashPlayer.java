@@ -94,4 +94,9 @@ public class SmashPlayer {
 		h.doSecondary(this);
 	}
 
+	public void doSmash() {
+		Hero h = getHero();
+		h.doSmash(this);
+	}
+
 }

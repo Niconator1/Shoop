@@ -37,8 +37,10 @@ public abstract class Hero {
 		return item;
 	}
 
-	public abstract void doPrimary(SmashPlayer p);
+	public abstract void doPrimary(SmashPlayer sp);
 
-	public abstract void doSecondary(SmashPlayer p);
+	public abstract void doSecondary(SmashPlayer sp);
+
+	public abstract void doSmash(SmashPlayer sp);
 
 }

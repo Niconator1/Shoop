@@ -3,6 +3,7 @@ package heroes;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -120,7 +121,7 @@ public class Shoop extends Hero {
 		ItemStack is = new ItemStack(Material.IRON_SPADE, 1, (short) (250 - (int) (loaded * 250.0 + 0.5)));
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.RED + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
-		if (loaded >=1.0) {
+		if (loaded >= 1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
 			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
 		}
@@ -226,7 +227,7 @@ public class Shoop extends Hero {
 				}
 			}
 			sp.setCharges(0);
-			p.getInventory().setItem(1, sp.getHero().getSecondary(0.0));
+			p.getInventory().setItem(1, getSecondary(0.0));
 			b = p.getEyeLocation();
 			v.normalize().multiply(0.1);
 			// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
@@ -266,6 +267,23 @@ public class Shoop extends Hero {
 			}
 		}
 
+	}
+
+	@Override
+	public void doSmash(SmashPlayer sp) {
+		Player p = sp.getPlayer();
+		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
+		p.getInventory().setItem(2, getSmash(0));
+		Cooldown c = new Cooldown(p, 2, 1799);
+		Smashplex.cooldown.add(c);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
+			@Override
+			public void run() {
+				// ShoopLazor sl = new ShoopLazor(p);
+				// ShoopProject.lazor.add(sl);
+				SoundUtil.sendPublicSoundPacket("mob.wither.death", 0.5f);
+			}
+		}, 45);
 	}
 
 }

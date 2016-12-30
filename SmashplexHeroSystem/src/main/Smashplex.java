@@ -290,4 +290,16 @@ public class Smashplex extends JavaPlugin {
 		return true;
 	}
 
+	public static boolean isSmashReady(Player p) {
+		for (int i = 0; i < cooldown.size(); i++) {
+			Cooldown c = cooldown.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				if (c.getSkill() == 2) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 }
