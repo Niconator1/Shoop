@@ -1,7 +1,6 @@
 package main;
 
 import org.bukkit.Color;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
@@ -38,6 +37,8 @@ public abstract class Hero {
 		return item;
 	}
 
-	public abstract void doPrimary(Player p);
+	public abstract void doPrimary(SmashPlayer p);
+
+	public abstract void doSecondary(SmashPlayer p);
 
 }

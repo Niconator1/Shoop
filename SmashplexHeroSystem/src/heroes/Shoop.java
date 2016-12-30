@@ -1,14 +1,17 @@
 package heroes;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,7 +20,11 @@ import org.bukkit.util.Vector;
 import abilities.Cooldown;
 import abilities.Lightningbolt;
 import main.Hero;
+import main.SmashPlayer;
 import main.Smashplex;
+import net.minecraft.server.v1_8_R3.EnumParticle;
+import util.MathUtil;
+import util.ParticleUtil;
 import util.SoundUtil;
 import util.TextUtil;
 
@@ -113,7 +120,7 @@ public class Shoop extends Hero {
 		ItemStack is = new ItemStack(Material.IRON_SPADE, 1, (short) (250 - (int) (loaded * 250.0 + 0.5)));
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.RED + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
-		if (loaded > 249) {
+		if (loaded >=1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
 			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
 		}
@@ -128,7 +135,8 @@ public class Shoop extends Hero {
 	}
 
 	@Override
-	public void doPrimary(Player p) {
+	public void doPrimary(SmashPlayer sp) {
+		Player p = sp.getPlayer();
 		double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
 		double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 		double x = Math.sin(pitch) * Math.cos(yaw);
@@ -153,6 +161,111 @@ public class Shoop extends Hero {
 		Smashplex.cooldown.add(c);
 		Lightningbolt bolt = new Lightningbolt(f, v, p, l, false);
 		Smashplex.bolt.add(bolt);
+	}
+
+	@Override
+	public void doSecondary(SmashPlayer sp) {
+		Player p = sp.getPlayer();
+		int charges = sp.getCharges();
+		if (charges > 0) {
+			double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+			double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+			double x = Math.sin(pitch) * Math.cos(yaw);
+			double y = Math.cos(pitch);
+			double z = Math.sin(pitch) * Math.sin(yaw);
+			Vector v = new Vector(x, y, z).normalize();
+			Location b = p.getEyeLocation();
+			ArrayList<UUID> hitted = new ArrayList<UUID>();
+			int r = 60 * 2;
+			if (charges > 4) {
+				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.big", p.getLocation());
+				v.multiply(0.5);
+			} else {
+				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.small", p.getLocation());
+				v.multiply(0.25);
+				r *= 2;
+			}
+			for (int i = 0; i < r; i++) {
+				b.add(v);
+				Block c = b.getBlock();
+				if (c.getType().isSolid()) {
+					break;
+				}
+				if (b.distance(p.getEyeLocation()) >= 1.0) {
+					switch (charges) {
+					case 2:
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+								-1.0f, 1f, 0.4f, 1f, 0);
+						break;
+					case 3:
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+								-1.0f, 0.4f, 1f, 1f, 0);
+						break;
+					case 4:
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+								-0.19999999f, 0f, 1f, 1f, 0);
+						break;
+					case 5:
+						for (int j = 0; j < 5; j++) {
+							double x1 = Math.sin(j / 5.0 * 2.0 * Math.PI) * 0.2;
+							double y1 = Math.cos(j / 5.0 * 2.0 * Math.PI) * 0.2;
+							Vector v1 = new Vector(y1, 0, x1);
+							v1 = MathUtil.rotateAroundAxisX(v1, ((b.getPitch() + 90) / 180.0 * Math.PI));
+							v1 = MathUtil.rotateAroundAxisY(v1, -(b.getYaw()) * Math.PI / 180);
+							ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX() + v1.getX(),
+									b.getY() + v1.getY(), b.getZ() + v1.getZ(), 1f, 1f, 1f, 1f, 0);
+						}
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 1f,
+								0f, 0f, 1f, 0);
+						break;
+					default:
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+								-0.19999999f, 1f, 0f, 1f, 0);
+						break;
+					}
+				}
+			}
+			sp.setCharges(0);
+			p.getInventory().setItem(1, sp.getHero().getSecondary(0.0));
+			b = p.getEyeLocation();
+			v.normalize().multiply(0.1);
+			// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
+			double bonusxz = 0.4; // 0.35 player model width/length
+			double bonusy = 0.55; // 1.8 player model height
+			for (double j = 0; j <= 60; j += 0.1) {
+				Location midm = b.add(v);
+				Block c = midm.getBlock();
+				if (c.getType().isSolid()) {
+					break;
+				}
+				for (LivingEntity le : b.getWorld().getLivingEntities()) {
+					if (!(le instanceof ArmorStand)) {
+						if (le.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+							boolean canhit = true;
+							for (int i = 0; i < hitted.size(); i++) {
+								if (hitted.get(i).compareTo(le.getUniqueId()) == 0) {
+									canhit = false;
+								}
+							}
+							if (canhit) {
+								Location enemy = le.getLocation();
+								if (Math.abs(enemy.getX() - midm.getX()) <= 0.35 + bonusxz) {
+									if (Math.abs(enemy.getZ() - midm.getZ()) <= 0.35 + bonusxz) {
+										double dy = enemy.getY() - midm.getY();
+										if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
+											SoundUtil.sendSoundPacket(p, "random.successful_hit", p.getLocation());
+											hitted.add(le.getUniqueId());
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 }

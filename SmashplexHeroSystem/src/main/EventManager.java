@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
@@ -74,6 +75,36 @@ public class EventManager implements Listener {
 						}
 					}
 				}
+			}
+		}
+	}
+	@EventHandler
+	public void registerSlotSwitch(PlayerItemHeldEvent event) {
+		Player p = event.getPlayer();
+		SmashPlayer sp = Smashplex.getSmashPlayer(p);
+		if (sp != null) {
+			if (sp.getSelectedHero() != -1) {
+				if (event.getNewSlot() == 1) {
+					sp.doSecondary();
+				} else if (event.getNewSlot() == 2) {
+//					ItemStack is = p.getInventory().getItem(1);
+//					if (is.getType() == Material.INK_SACK && is.getDurability() == 14) {
+//						ShoopProject.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
+//						p.getInventory().setItem(2, ItemStackManipulation.getSmashItem(0));
+//						Cooldown c = new Cooldown(p, 2, 1799);
+//						ShoopProject.cooldown.add(c);
+//						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ShoopProject.getPlugin(ShoopProject.class),
+//								new Runnable() {
+//									@Override
+//									public void run() {
+//										ShoopLazor sl = new ShoopLazor(p);
+//										ShoopProject.lazor.add(sl);
+//										ShoopProject.sendPublicSoundPacket("mob.wither.death", 0.5f);
+//									}
+//								}, 45);
+//					}
+				}
+				p.getInventory().setHeldItemSlot(0);
 			}
 		}
 	}

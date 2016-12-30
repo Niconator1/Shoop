@@ -86,7 +86,12 @@ public class SmashPlayer {
 
 	public void doPrimary() {
 		Hero h = getHero();
-		h.doPrimary(p);
+		h.doPrimary(this);
+	}
+
+	public void doSecondary() {
+		Hero h = getHero();
+		h.doSecondary(this);
 	}
 
 }
