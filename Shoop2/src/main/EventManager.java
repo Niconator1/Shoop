@@ -155,7 +155,7 @@ public class EventManager implements Listener {
 				Lightningbolt b = ShoopProject.bolt.get(i);
 				if (p.getUniqueId().compareTo(b.getShoop().getUniqueId()) == 0) {
 					if (b.isPassive()) {
-						if (b.getStand().getLocation().distance(b.start()) > 3) {
+						if (b.getStand().getLocation().distance(b.start()) > 5) {
 							p.setSneaking(false);
 							b.getStand().setPassenger(null);
 							b.getStand().remove();

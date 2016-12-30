@@ -1,0 +1,24 @@
+name: Smashplex
+version: 0.1
+description: >
+  A community recreation of the game smash heroes to improve balance and test new heroes
+
+author: Niconator1
+main: main.Smashplex
+load: STARTUP
+
+commands:
+    smash:
+        description: Disables/enables the plugin
+    shoop:
+        description: Selects shoop as your hero
+    removehero:
+        description: Removes all parts of the current selected hero
+permissions:
+    smash.admin:
+        default: false
+        description: Allows disabling/enabling of the plugin
+    smash.shoop:
+        default: false
+        description: All rights for shoop
+        
