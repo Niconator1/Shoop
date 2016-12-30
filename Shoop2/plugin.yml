@@ -1,0 +1,21 @@
+name: Shoop
+version: 1.5
+description: >
+  Recreation of shoop
+
+author: Niconator1
+main: main.ShoopProject
+load: STARTUP
+
+commands:
+    remove:
+        description: Remove all entitys
+    shoop:
+        description: Gives shoop armor
+    removeshoop:
+        description: Gives shoop armor
+permissions:
+    smash.shoop:
+        default: false
+        description: All rights for shoop
+        
