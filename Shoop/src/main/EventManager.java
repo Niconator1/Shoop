@@ -19,6 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -29,16 +30,19 @@ public class EventManager implements Listener {
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent e) {
 		if (e.getItem() != null) {
-			if (e.getItem().getType() == Material.RAW_BEEF) {
+			if (e.getItem()==ItemStackManipulation.getBoltItem()) {
 				if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 					Player p = e.getPlayer();
+					if(!p.getName().equals("NiconatorTM")){
+						return;
+					}
 					if (ShoopProject.isBoltReady(p)) {
 						double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
 						double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 						double x = Math.sin(pitch) * Math.cos(yaw);
 						double y = Math.cos(pitch);
 						double z = Math.sin(pitch) * Math.sin(yaw);
-						Vector v = new Vector(x, y, z).multiply(1.4);
+						Vector v = new Vector(x, y, z).multiply(2.5);
 						Location l = p.getLocation();
 						double xo = Math.cos(yaw);
 						double zo = -Math.sin(yaw);
@@ -48,6 +52,7 @@ public class EventManager implements Listener {
 						CraftArmorStand a = (CraftArmorStand) f;
 						a.getHandle().noclip = true;
 						f.setVelocity(v);
+						System.out.println(f.getVelocity().length());
 						f.setSilent(true);
 						f.setVisible(false);
 						f.setInvulnerable(true);
@@ -68,6 +73,9 @@ public class EventManager implements Listener {
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e) {
 		Player p = e.getPlayer();
+		if(!p.getName().equals("NiconatorTM")){
+			return;
+		}
 		// p.sendMessage(e.isSneaking() + " " + p.isSneaking() + " " +
 		// p.isInsideVehicle());
 		if (e.isSneaking()) {
@@ -78,7 +86,7 @@ public class EventManager implements Listener {
 				double x = Math.sin(pitch) * Math.cos(yaw);
 				double y = Math.cos(pitch);
 				double z = Math.sin(pitch) * Math.sin(yaw);
-				Vector v = new Vector(x, y, z).multiply(1.4);
+				Vector v = new Vector(x, y, z).multiply(2.5);
 				Location l = p.getLocation();
 				double xo = Math.cos(yaw);
 				double zo = -Math.sin(yaw);
@@ -140,8 +148,26 @@ public class EventManager implements Listener {
 	}
 
 	@EventHandler
+	public void registerDoubleJump(PlayerToggleFlightEvent event) {
+		Player p = event.getPlayer();
+		if(!p.getName().equals("NiconatorTM")){
+			return;
+		}
+		event.setCancelled(true);
+		p.sendMessage("Jump");
+		double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+		double x = Math.cos(yaw);
+		double z = Math.sin(yaw);
+		Vector v = new Vector(x, 0, z).normalize().multiply(0.77);
+		p.setVelocity(new Vector(v.getX(), 0.77, v.getZ()));
+	}
+
+	@EventHandler
 	public void registerSlotSwitch(PlayerItemHeldEvent event) {
 		Player p = event.getPlayer();
+		if(!p.getName().equals("NiconatorTM")){
+			return;
+		}
 		if (event.getNewSlot() == 1) {
 			int charges = ShoopProject.getCharges(p);
 			if (charges > 0) {
@@ -168,36 +194,38 @@ public class EventManager implements Listener {
 					if (c.getType().isSolid()) {
 						break;
 					}
-					switch (charges) {
-					case 2:
-						ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 0.1f,
-								1f, 0f, 1f, 0);
-						break;
-					case 3:
-						ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 0.1f,
-								0f, 1f, 1f, 0);
-						break;
-					case 4:
-						ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 1f,
-								0f, 1f, 1f, 0);
-						break;
-					case 5:
-						for (int j = 0; j < 9; j++) {
-							double x1 = Math.sin(j / 9.0 * 2.0 * Math.PI) * 0.4;
-							double y1 = Math.cos(j / 9.0 * 2.0 * Math.PI) * 0.4;
-							Vector v1 = new Vector(y1, 0, x1);
-							v1 = ShoopProject.rotateAroundAxisX(v1, ((b.getPitch() + 90) / 180.0 * Math.PI));
-							v1 = ShoopProject.rotateAroundAxisY(v1, -(b.getYaw()) * Math.PI / 180);
-							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX() + v1.getX(),
-									b.getY() + v1.getY(), b.getZ() + v1.getZ(), 1f, 0f, 0f, 1f, 0);
+					if (b.distance(p.getEyeLocation()) >= 1.0) {
+						switch (charges) {
+						case 2:
+							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+									-1.0f, 1f, 0.4f, 1f, 0);
+							break;
+						case 3:
+							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+									-1.0f, 0.4f, 1f, 1f, 0);
+							break;
+						case 4:
+							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+									-0.19999999f, 0f, 1f, 1f, 0);
+							break;
+						case 5:
+							for (int j = 0; j < 5; j++) {
+								double x1 = Math.sin(j / 5.0 * 2.0 * Math.PI) * 0.2;
+								double y1 = Math.cos(j / 5.0 * 2.0 * Math.PI) * 0.2;
+								Vector v1 = new Vector(y1, 0, x1);
+								v1 = ShoopProject.rotateAroundAxisX(v1, ((b.getPitch() + 90) / 180.0 * Math.PI));
+								v1 = ShoopProject.rotateAroundAxisY(v1, -(b.getYaw()) * Math.PI / 180);
+								ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX() + v1.getX(),
+										b.getY() + v1.getY(), b.getZ() + v1.getZ(), 1f, 1f, 1f, 1f, 0);
+							}
+							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+									1f, 0f, 0f, 1f, 0);
+							break;
+						default:
+							ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
+									-0.19999999f, 1f, 0f, 1f, 0);
+							break;
 						}
-						ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 1f,
-								1f, 1f, 1f, 0);
-						break;
-					default:
-						ShoopProject.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(), 1f,
-								1f, 0f, 1f, 0);
-						break;
 					}
 				}
 				ShoopProject.setCharges(p, 0);
@@ -240,6 +268,24 @@ public class EventManager implements Listener {
 					}
 				}
 			}
+		} else if (event.getNewSlot() == 2) {
+			// ItemStack is = p.getInventory().getItem(1);
+			// if (is.getType() == Material.INK_SACK && is.getDurability() ==
+			// 14) {
+			ShoopProject.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
+			p.getInventory().setItem(2, ItemStackManipulation.getSmashItem(0));
+			Cooldown c = new Cooldown(p, 2, 1799);
+			ShoopProject.cooldown.add(c);
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ShoopProject.getPlugin(ShoopProject.class),
+					new Runnable() {
+						@Override
+						public void run() {
+							ShoopLazor sl = new ShoopLazor(p);
+							ShoopProject.lazor.add(sl);
+							ShoopProject.sendPublicSoundPacket("entity.wither.death", 0.5f);
+						}
+					}, 45);
+			// }
 		}
 		p.getInventory().setHeldItemSlot(0);
 	}

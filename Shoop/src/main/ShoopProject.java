@@ -15,6 +15,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import net.minecraft.server.v1_10_R1.EnumParticle;
@@ -28,7 +30,9 @@ import net.minecraft.server.v1_10_R1.SoundCategory;
 
 public class ShoopProject extends JavaPlugin {
 	public static ArrayList<Lightningbolt> bolt = new ArrayList<Lightningbolt>();
+	public static ArrayList<ShoopLazor> lazor = new ArrayList<ShoopLazor>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
+	public static ArrayList<DJump> jumps = new ArrayList<DJump>();
 	public static final boolean debughitbox = false;
 
 	public void onEnable() {
@@ -40,7 +44,9 @@ public class ShoopProject extends JavaPlugin {
 	public void onDisable() {
 		for (int i = 0; i < bolt.size(); i++) {
 			bolt.get(i).getStand().remove();
-			bolt.remove(i);
+		}
+		for (int i = 0; i < lazor.size(); i++) {
+			lazor.get(i).finish();
 		}
 	}
 
@@ -53,12 +59,22 @@ public class ShoopProject extends JavaPlugin {
 		} else if (cmd.getName().equalsIgnoreCase("shoop")) {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
-				p.getInventory().setHelmet(ItemStackManipulation.getShoopHelmet());
-				p.getInventory().setChestplate(ItemStackManipulation.getShoopChestplate());
-				p.getInventory().setLeggings(ItemStackManipulation.getShoopLeggings());
-				p.getInventory().setBoots(ItemStackManipulation.getShoopBoots());
-				p.getInventory().setItem(0, ItemStackManipulation.getBoltItem());
-				p.getInventory().setItem(1, ItemStackManipulation.getChargedItem(0));
+				if(!p.getName().equals("NiconatorTM")){
+					p.getInventory().setHelmet(ItemStackManipulation.getShoopHelmet());
+					p.getInventory().setChestplate(ItemStackManipulation.getShoopChestplate());
+					p.getInventory().setLeggings(ItemStackManipulation.getShoopLeggings());
+					p.getInventory().setBoots(ItemStackManipulation.getShoopBoots());
+					p.getInventory().setItem(0, ItemStackManipulation.getBoltItem());
+					p.getInventory().setItem(1, ItemStackManipulation.getChargedItem(0));
+					p.getInventory().setItem(2, ItemStackManipulation.getSmashItem(0));
+					p.setAllowFlight(true);
+					Cooldown c = new Cooldown(p, 2, 1799);
+					cooldown.add(c);
+					DJump dj = new DJump(p, 2);
+					jumps.add(dj);
+					p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
+					p.setWalkSpeed(0.4f);
+				}
 			}
 		}
 		return false;
@@ -76,9 +92,26 @@ public class ShoopProject extends JavaPlugin {
 				for (int i = 0; i < cooldown.size(); i++) {
 					Cooldown c = cooldown.get(i);
 					c.setTicks(c.getTicks() - 1);
-					sendCooldownMessage(c);
+					if (c.getSkill() == 0) {
+						sendCooldownMessage(c);
+					} else if (c.getSkill() == 2) {
+						c.getPlayer().getInventory().setItem(2, ItemStackManipulation.getSmashItem(
+								(int) ((1.0 - (double) c.getTicks() / (double) c.getMaxTicks()) * 250.0)));
+					}
 					if (c.getTicks() < 0) {
+						if (c.getSkill() == 2) {
+							c.getPlayer().getInventory().setItem(2, ItemStackManipulation.getSmashItem(250));
+						}
 						cooldown.remove(i);
+					}
+				}
+				// Smash
+				for (int i = 0; i < lazor.size(); i++) {
+					ShoopLazor sl = lazor.get(i);
+					sl.setTicks(sl.getTicks() - 1);
+					if (sl.getTicks() < 0) {
+						sl.finish();
+						lazor.remove(i);
 					}
 				}
 				// Block collision check
@@ -100,6 +133,10 @@ public class ShoopProject extends JavaPlugin {
 							bolt.remove(i);
 							break;
 						}
+					}
+					if (b.isPassive() && stand.getPassenger() == null) {
+						stand.remove();
+						bolt.remove(i);
 					}
 				}
 				// Hit registration
@@ -127,10 +164,9 @@ public class ShoopProject extends JavaPlugin {
 													sendSoundPacket(b.getShoop(), "entity.arrow.hit_player",
 															b.getShoop().getLocation());
 													b.addHitted(le.getUniqueId());
-													if(b.isPassive()){
+													if (b.isPassive()) {
 														addCharges(b.getShoop(), 5);
-													}
-													else{
+													} else {
 														addCharges(b.getShoop(), 1);
 													}
 													break;
@@ -182,14 +218,28 @@ public class ShoopProject extends JavaPlugin {
 			@Override
 			public void run() {
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (p.getLevel() < 100) {
-						p.setLevel(p.getLevel() + 1);
-						float pro = p.getLevel() / (100 + 0.000001f);
-						p.setExp(pro);
-					}
+					if(p.getName().equals("NiconatorTM")){
+						if (p.getLevel() < 100) {
+							p.setLevel(p.getLevel() + 1);
+							float pro = p.getLevel() / (100 + 0.000001f);
+							p.setExp(pro);
+						}
+					}	
 				}
 			}
 		}, 0, 2);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				// Smash
+				for (int i = 0; i < lazor.size(); i++) {
+					ShoopLazor sl = lazor.get(i);
+					if (sl.getTicks() > 0) {
+						sl.handle();
+					}
+				}
+			}
+		}, 0, 3);
 	}
 
 	public static void addCharges(Player shoop, int i) {
@@ -252,19 +302,14 @@ public class ShoopProject extends JavaPlugin {
 			PacketPlayOutChat packet = new PacketPlayOutChat(chat, (byte) 2);
 			con.sendPacket(packet);
 		} else {
-			c.getPlayer().sendMessage("Cooldown (ms): " + (System.currentTimeMillis() - c.getStart()));
+			// c.getPlayer().sendMessage("Cooldown (ms): " +
+			// (System.currentTimeMillis() - c.getStart()));
 			PlayerConnection con = ((CraftPlayer) c.getPlayer()).getHandle().playerConnection;
 			IChatBaseComponent chat = ChatSerializer.a("{\"text\": \"" + ChatColor.GREEN + ChatColor.BOLD + "READY "
 					+ ChatColor.AQUA + ChatColor.BOLD + "(Right Click!)" + "\"}");
 			PacketPlayOutChat packet = new PacketPlayOutChat(chat, (byte) 2);
 			con.sendPacket(packet);
 		}
-	}
-
-	public static void sendSoundPacket(Player p, String sound, Location l) {
-		PacketPlayOutCustomSoundEffect packet = new PacketPlayOutCustomSoundEffect(sound, SoundCategory.MASTER,
-				l.getX(), l.getY(), l.getZ(), 1f, 1f);
-		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 	}
 
 	public static void sendParticlePacket(Player p, EnumParticle type, Location l, int count) {
@@ -279,9 +324,17 @@ public class ShoopProject extends JavaPlugin {
 		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 	}
 
+	public static void sendSoundPacket(Player p, String sound, Location l) {
+		PacketPlayOutCustomSoundEffect packet = new PacketPlayOutCustomSoundEffect(sound, SoundCategory.MASTER,
+				l.getX(), l.getY(), l.getZ(), 1f, 1f);
+		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+	}
+
 	public static void sendPublicSoundPacket(String sound, Location l) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			sendSoundPacket(p, sound, l);
+			PacketPlayOutCustomSoundEffect packet = new PacketPlayOutCustomSoundEffect(sound, SoundCategory.MASTER,
+					l.getX(), l.getY(), l.getZ(), 1f, 1f);
+			((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 		}
 	}
 
@@ -291,6 +344,7 @@ public class ShoopProject extends JavaPlugin {
 			sendParticlePacket(p, type, x, y, z, vx, vy, vz, v, count);
 		}
 	}
+
 	public static final Vector rotateAroundAxisX(Vector v, double angle) {
 		double y, z, cos, sin;
 		cos = Math.cos(angle);
@@ -307,5 +361,14 @@ public class ShoopProject extends JavaPlugin {
 		x = v.getX() * cos + v.getZ() * sin;
 		z = v.getX() * -sin + v.getZ() * cos;
 		return v.setX(x).setZ(z);
+	}
+
+	public static void sendPublicSoundPacket(String sound, float pitch) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			Location l = p.getLocation();
+			PacketPlayOutCustomSoundEffect packet = new PacketPlayOutCustomSoundEffect(sound, SoundCategory.MASTER,
+					l.getX(), l.getY(), l.getZ(), 1f, pitch);
+			((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+		}
 	}
 }

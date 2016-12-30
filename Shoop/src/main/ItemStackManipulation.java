@@ -50,6 +50,24 @@ public class ItemStackManipulation {
 		return is;
 	}
 
+	public static ItemStack getSmashItem(int loaded) {
+		ItemStack is = new ItemStack(Material.IRON_SPADE, 1, (short) (250 - loaded));
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(ChatColor.RED + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+		if (loaded > 249) {
+			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
+			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+		}
+		ArrayList<String> lore = new ArrayList<String>();
+		lore.add(ChatColor.GRAY + "Smash Ability");
+		lore.add("");
+		lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [3]" + ChatColor.GRAY + " to unleash");
+		lore.add(ChatColor.GRAY + "a devastating lazor.");
+		im.setLore(lore);
+		is.setItemMeta(im);
+		return is;
+	}
+
 	public static ItemStack getShoopHelmet() {
 		ItemStack is = new ItemStack(Material.CARPET, 1, (short) 1);
 		ItemMeta im = is.getItemMeta();
