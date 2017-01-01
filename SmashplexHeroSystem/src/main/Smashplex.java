@@ -3,6 +3,7 @@ package main;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,25 +13,31 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.Vector;
 
 import abilities.Cooldown;
 import abilities.Lightningbolt;
+import abilities.ShoopLazor;
 import util.SoundUtil;
 import util.TextUtil;
 
 public class Smashplex extends JavaPlugin {
 	public static ArrayList<SmashPlayer> players = new ArrayList<SmashPlayer>();
 	public static ArrayList<Lightningbolt> bolt = new ArrayList<Lightningbolt>();
+	public static ArrayList<ShoopLazor> lazor = new ArrayList<ShoopLazor>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
 	public static boolean smash = false;
+	public static Objective obj;
 
 	public void onEnable() {
 		this.getLogger().info("Smashplex enabled");
 		getServer().getPluginManager().registerEvents(new EventManager(), this);
 		loopsSmash();
+		loopsShoop();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			SmashPlayer sp = new SmashPlayer(p);
+			SmashPlayer sp = new SmashPlayer(p, 100);
 			Smashplex.players.add(sp);
 		}
 	}
@@ -51,6 +58,9 @@ public class Smashplex extends JavaPlugin {
 		}
 		for (int i = 0; i < bolt.size(); i++) {
 			bolt.get(i).getStand().remove();
+		}
+		for (int i = 0; i < lazor.size(); i++) {
+			lazor.get(i).finish();
 		}
 	}
 
@@ -107,6 +117,7 @@ public class Smashplex extends JavaPlugin {
 						if (sp.getSelectedHero() == -1) {
 							sp.setSelectedHero(0);
 							sp.giveHeroItems();
+							SoundUtil.sendSoundPacket(p, "ShoopDaWhoop.select", p.getLocation());
 						}
 						sender.sendMessage("You selected shoop");
 					} else {
@@ -134,6 +145,109 @@ public class Smashplex extends JavaPlugin {
 
 	private void loopsSmash() {
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+				// Cooldown decrease
+				for (int i = 0; i < cooldown.size(); i++) {
+					Cooldown c = cooldown.get(i);
+					c.setTicks(c.getTicks() - 1);
+					Player p = c.getPlayer();
+					if (c.getSkill() == 0) {
+						if (p.isOnline()) {
+							TextUtil.sendCooldownMessage(c);
+						}
+					} else if (c.getSkill() == 2) {
+						if (p.isOnline()) {
+							SmashPlayer sp = getSmashPlayer(p);
+							if (sp != null) {
+								if (sp.getSelectedHero() != -1) {
+									p.getInventory().setItem(2, sp.getHero()
+											.getSmash(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+								}
+							}
+						}
+					}
+					if (c.getTicks() < 0) {
+						if (c.getSkill() == 2) {
+							if (p.isOnline()) {
+								SmashPlayer sp = getSmashPlayer(p);
+								if (sp != null) {
+									if (sp.getSelectedHero() != -1) {
+										p.getInventory().setItem(2, sp.getHero().getSmash(1.0));
+										TextUtil.sendTitle(p, "",
+												ChatColor.GREEN + "SMASH READY! " + ChatColor.AQUA + "Press [3]", 0, 30,
+												0);
+										SoundUtil.sendSoundPacket(p, "mob.wither.spawn", p.getLocation(), 2f);
+									}
+								}
+							}
+						}
+						cooldown.remove(i);
+					}
+				}
+			}
+		}, 0, 1);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					SmashPlayer sp = getSmashPlayer(p);
+					if (sp != null) {
+						if (sp.getSelectedHero() != -1) {
+							if (p.getLevel() < 100) {
+								p.setLevel(p.getLevel() + 1);
+								float pro = p.getLevel() / (100 + 0.000001f);
+								p.setExp(pro);
+							}
+						}
+					}
+				}
+			}
+		}, 0, 2);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+				// Player Health
+				for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+					if (obj == null) {
+						if (Bukkit.getServer().getScoreboardManager().getMainScoreboard()
+								.getObjective("health") != null) {
+							obj = Bukkit.getServer().getScoreboardManager().getMainScoreboard().getObjective("health");
+						} else {
+							obj = Bukkit.getServer().getScoreboardManager().getMainScoreboard()
+									.registerNewObjective("health", "dummy");
+						}
+						obj.setDisplayName(ChatColor.RED + "❤");
+						obj.setDisplaySlot(DisplaySlot.BELOW_NAME);
+						obj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+					}
+					SmashPlayer sp = getSmashPlayer(p);
+					if (sp != null) {
+						if (sp.getSelectedHero() != -1) {
+							obj.getScore(p.getName()).setScore((int) Math.round(sp.getHP()));
+						} else {
+							obj.getScore(p.getName()).setScore(100);
+						}
+					}
+				}
+			}
+		}, 0, 1);
+
+	}
+
+	private void loopsShoop() {
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				// Smash
+				for (int i = 0; i < lazor.size(); i++) {
+					ShoopLazor sl = lazor.get(i);
+					if (sl.getTicks() > 0) {
+						sl.handle();
+					}
+				}
+			}
+		}, 0, 3);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
 			public void run() {
 				// Projectile Gravitation disabling
 				for (int i = 0; i < bolt.size(); i++) {
@@ -171,8 +285,11 @@ public class Smashplex extends JavaPlugin {
 						}
 					}
 					if (b.isPassive() && stand.getPassenger() == null) {
-						stand.remove();
-						bolt.remove(i);
+						if (stand.getTicksLived() < 5) {
+							if (b.getShoop().isOnline()) {
+								stand.setPassenger(b.getShoop());
+							}
+						}
 					}
 				}
 				// Hit registration
@@ -202,6 +319,15 @@ public class Smashplex extends JavaPlugin {
 																b.getShoop().getLocation());
 													}
 													b.addHitted(le.getUniqueId());
+													if (le instanceof Player) {
+														Player target = (Player) le;
+														SmashPlayer spt = Smashplex.getSmashPlayer(target);
+														if (spt != null) {
+															if (spt.getSelectedHero() != -1) {
+																spt.damage(1.5);
+															}
+														}
+													}
 													SmashPlayer sp = getSmashPlayer(b.getShoop());
 													if (sp != null) {
 														if (sp.getSelectedHero() == 0) {
@@ -210,6 +336,17 @@ public class Smashplex extends JavaPlugin {
 																b.getShoop().getInventory().setItem(1,
 																		sp.getHero().getSecondary(
 																				((double) sp.getCharges()) / 5.0));
+															}
+														}
+													}
+													if (!isSmashReady(b.getShoop())) {
+														for (int k = 0; k < Smashplex.cooldown.size(); k++) {
+															Cooldown c = Smashplex.cooldown.get(k);
+															if (c.getPlayer().getUniqueId()
+																	.compareTo(b.getShoop().getUniqueId()) == 0) {
+																if (c.getSkill() == 2) {
+																	c.setTicks(c.getTicks() - 40);
+																}
 															}
 														}
 													}
@@ -235,59 +372,17 @@ public class Smashplex extends JavaPlugin {
 						}
 					}
 				}
-				// Cooldown decrease
-				for (int i = 0; i < cooldown.size(); i++) {
-					Cooldown c = cooldown.get(i);
-					c.setTicks(c.getTicks() - 1);
-					Player p = c.getPlayer();
-					if (c.getSkill() == 0) {
-						if (p.isOnline()) {
-							TextUtil.sendCooldownMessage(c);
-						}
-					} else if (c.getSkill() == 2) {
-						if (p.isOnline()) {
-							SmashPlayer sp = getSmashPlayer(p);
-							if (sp != null) {
-								if (sp.getSelectedHero() != -1) {
-									p.getInventory().setItem(2, sp.getHero()
-											.getSmash(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
-								}
-							}
-						}
-					}
-					if (c.getTicks() < 0) {
-						if (c.getSkill() == 2) {
-							if (p.isOnline()) {
-								SmashPlayer sp = getSmashPlayer(p);
-								if (sp != null) {
-									if (sp.getSelectedHero() != -1) {
-										p.getInventory().setItem(2, sp.getHero().getSmash(1.0));
-									}
-								}
-							}
-						}
-						cooldown.remove(i);
+				// Smash
+				for (int i = 0; i < lazor.size(); i++) {
+					ShoopLazor sl = lazor.get(i);
+					sl.setTicks(sl.getTicks() - 1);
+					if (sl.getTicks() < 0) {
+						sl.finish();
+						lazor.remove(i);
 					}
 				}
 			}
 		}, 0, 1);
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			@Override
-			public void run() {
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					SmashPlayer sp = getSmashPlayer(p);
-					if (sp != null) {
-						if (sp.getSelectedHero() != -1) {
-							if (p.getLevel() < 100) {
-								p.setLevel(p.getLevel() + 1);
-								float pro = p.getLevel() / (100 + 0.000001f);
-								p.setExp(pro);
-							}
-						}
-					}
-				}
-			}
-		}, 0, 2);
 	}
 
 	public static boolean isPrimaryReady(Player p) {

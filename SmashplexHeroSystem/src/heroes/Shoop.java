@@ -20,6 +20,7 @@ import org.bukkit.util.Vector;
 
 import abilities.Cooldown;
 import abilities.Lightningbolt;
+import abilities.ShoopLazor;
 import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
@@ -32,7 +33,7 @@ import util.TextUtil;
 public class Shoop extends Hero {
 
 	public Shoop() {
-		super("Shoop");
+		super("Shoop", 2399);
 	}
 
 	@Override
@@ -256,6 +257,25 @@ public class Shoop extends Hero {
 										if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
 											SoundUtil.sendSoundPacket(p, "random.successful_hit", p.getLocation());
 											hitted.add(le.getUniqueId());
+											if (le instanceof Player) {
+												Player target = (Player) le;
+												SmashPlayer spt = Smashplex.getSmashPlayer(target);
+												if (spt != null) {
+													if (spt.getSelectedHero() != -1) {
+														if (charges == 1) {
+															spt.damage(4);
+														} else if (charges == 2) {
+															spt.damage(5);
+														} else if (charges == 3) {
+															spt.damage(7);
+														} else if (charges == 4) {
+															spt.damage(8);
+														} else if (charges == 5) {
+															spt.damage(18);
+														}
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -266,7 +286,6 @@ public class Shoop extends Hero {
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -279,8 +298,10 @@ public class Shoop extends Hero {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
 			@Override
 			public void run() {
-				// ShoopLazor sl = new ShoopLazor(p);
-				// ShoopProject.lazor.add(sl);
+				if (p.hasPermission("smash.admin")) {
+					ShoopLazor sl = new ShoopLazor(p);
+					Smashplex.lazor.add(sl);
+				}
 				SoundUtil.sendPublicSoundPacket("mob.wither.death", 0.5f);
 			}
 		}, 45);

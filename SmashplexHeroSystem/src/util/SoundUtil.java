@@ -30,4 +30,9 @@ public class SoundUtil {
 				1f, 1f);
 		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
 	}
+	public static void sendSoundPacket(Player p, String sound, Location l, float pitch) {
+		PacketPlayOutNamedSoundEffect packet = new PacketPlayOutNamedSoundEffect(sound, l.getX(), l.getY(), l.getZ(),
+				1f, pitch);
+		((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+	}
 }
