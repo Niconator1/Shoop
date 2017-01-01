@@ -286,4 +286,9 @@ public class Shoop extends Hero {
 		}, 45);
 	}
 
+	@Override
+	public double getMeleeDamage() {
+		return 2.0;
+	}
+
 }

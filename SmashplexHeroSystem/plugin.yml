@@ -16,9 +16,9 @@ commands:
         description: Removes all parts of the current selected hero
 permissions:
     smash.admin:
-        default: false
+        default: op
         description: Allows disabling/enabling of the plugin
     smash.shoop:
-        default: false
+        default: op
         description: All rights for shoop
         

@@ -12,6 +12,7 @@ public class SmashPlayer {
 	private Player p;
 	private int hero = -1;
 	private int charges = 0;
+	private int jumps = 2;
 
 	public SmashPlayer(Player p) {
 		this.p = p;
@@ -34,11 +35,21 @@ public class SmashPlayer {
 	public int getSelectedHero() {
 		return hero;
 	}
-	public int getCharges(){
-		return charges;	
+
+	public int getCharges() {
+		return charges;
 	}
-	public void setCharges(int charges){
-		this.charges=charges;
+
+	public void setCharges(int charges) {
+		this.charges = charges;
+	}
+
+	public int getRemainingJumps() {
+		return jumps;
+	}
+
+	public void setJumps(int jumps) {
+		this.jumps = jumps;
 	}
 
 	public void setSelectedHero(int hero) {

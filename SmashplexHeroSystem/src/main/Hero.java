@@ -42,5 +42,7 @@ public abstract class Hero {
 	public abstract void doSecondary(SmashPlayer sp);
 
 	public abstract void doSmash(SmashPlayer sp);
+	
+	public abstract double getMeleeDamage();
 
 }

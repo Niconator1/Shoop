@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -144,18 +145,29 @@ public class Smashplex extends JavaPlugin {
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
 					double bonuslengthf = 0.75;
-					double bonuslengthb = -0.5;//-1.5
+					double bonuslengthb = -0.5;// -1.5
 					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
 						Vector dir = b.getVector().clone().normalize().multiply(j);
 						Location midm = mid.clone().add(dir);
 						Block c = midm.getBlock();
 						if (c.getType().isSolid()) {
-							if (b.isPassive()) {
-								b.getStand().setPassenger(null);
+							if (c.getType() == Material.STEP) {
+								if (midm.getY() % midm.getBlockY() < 0.5) {
+									if (b.isPassive()) {
+										b.getStand().setPassenger(null);
+									}
+									stand.remove();
+									bolt.remove(i);
+									break;
+								}
+							} else {
+								if (b.isPassive()) {
+									b.getStand().setPassenger(null);
+								}
+								stand.remove();
+								bolt.remove(i);
+								break;
 							}
-							stand.remove();
-							bolt.remove(i);
-							break;
 						}
 					}
 					if (b.isPassive() && stand.getPassenger() == null) {
