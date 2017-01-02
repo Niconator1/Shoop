@@ -258,7 +258,7 @@ public class Smashplex extends JavaPlugin {
 					Lightningbolt b = bolt.get(i);
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
-					double bonuslengthf = 0.75;
+					double bonuslengthf = 0.75+0.5;
 					double bonuslengthb = -0.5;// -1.5
 					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
 						Vector dir = b.getVector().clone().normalize().multiply(j);

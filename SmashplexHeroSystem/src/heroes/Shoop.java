@@ -182,17 +182,25 @@ public class Shoop extends Hero {
 			ArrayList<UUID> hitted = new ArrayList<UUID>();
 			int r = 60 * 2;
 			if (charges > 4) {
-				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.big", p.getLocation());
+				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.big", 1f);
 				v.multiply(0.5);
 			} else {
-				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.small", p.getLocation());
+				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.small", 1f);
 				v.multiply(0.25);
 				r *= 2;
 			}
 			for (int i = 0; i < r; i++) {
 				b.add(v);
 				Block c = b.getBlock();
-				if (c.getType().isSolid()) {
+				if (c.getType() == Material.STEP) {
+					if (b.getY() % b.getBlockY() < 0.5) {
+						ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_LARGE, b.getX(), b.getY(),
+								b.getZ(), 0f, 0f, 0f, 0f, 1);
+						break;
+					}
+				} else if (c.getType().isSolid()) {
+					ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_LARGE, b.getX(), b.getY(), b.getZ(),
+							0f, 0f, 0f, 0f, 1);
 					break;
 				}
 				if (b.distance(p.getEyeLocation()) >= 1.0) {
@@ -239,7 +247,11 @@ public class Shoop extends Hero {
 			for (double j = 0; j <= 60; j += 0.1) {
 				Location midm = b.add(v);
 				Block c = midm.getBlock();
-				if (c.getType().isSolid()) {
+				if (c.getType() == Material.STEP) {
+					if (b.getY() % b.getBlockY() < 0.5) {
+						break;
+					}
+				} else if (c.getType().isSolid()) {
 					break;
 				}
 				for (LivingEntity le : b.getWorld().getLivingEntities()) {
