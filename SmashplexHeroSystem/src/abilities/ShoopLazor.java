@@ -2,9 +2,11 @@ package abilities;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -12,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.MathHelper;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityTeleport;
 import util.MathUtil;
 import util.ParticleUtil;
 
@@ -21,6 +25,7 @@ public class ShoopLazor {
 	private Location old;
 	private ArrayList<ArmorStand> alist = new ArrayList<ArmorStand>();
 	private int ticks = 80;
+	private double length = 55.0;
 
 	public ShoopLazor(Player shoop) {
 		this.shoop = shoop;
@@ -29,7 +34,7 @@ public class ShoopLazor {
 
 	private void start() {
 		Vector v = shoop.getLocation().getDirection().normalize();
-		for (double i = 2.5; i < 55.0; i += 1.3) {
+		for (double i = 2.5; i < length; i += 1.6) {
 			Vector dif = v.normalize().multiply(i);
 			Location l = shoop.getLocation().add(dif);
 			ArmorStand a = (ArmorStand) shoop.getLocation().getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
@@ -84,27 +89,24 @@ public class ShoopLazor {
 			ArmorStand a = alist.get(i);
 			Vector difold = dirold.normalize().multiply(j);
 			Location locold = old.clone().add(difold);
-			a.teleport(locold);
-			//Location previous = a.getLocation();
+			int posX = MathHelper.floor(locold.getX() * 32.0D);
+			int posY = MathHelper.floor(locold.getY() * 32.0D);
+			int posZ = MathHelper.floor(locold.getZ() * 32.0D);
+			byte yaw = (byte) ((int) (locold.getYaw() * 256.0F / 360.0F));
+			byte pitch = (byte) ((int) (locold.getPitch() * 256.0F / 360.0F));
+			boolean onGround = a.isOnGround();
+			PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(a.getEntityId(), posX, posY, posZ, yaw,
+					pitch, onGround);
+			// a.teleport(locold);
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+			}
 			Vector difs = v.normalize().multiply(j);
 			Location ls = shoop.getLocation().add(difs);
-			old = shoop.getLocation();
-			dirold = difs.normalize();
-			//for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-				// PacketPlayOutRelEntityMove packet = new
-				// PacketPlayOutRelEntityMove(a.getEntityId(),
-				// ls.getX() - previous.getX()/Byte., ls.getY() -
-				// previous.getY(), ls.getZ() - previous.getZ(), true);
-				// PacketPlayOutRelEntityMove packet = new
-				// PacketPlayOutRelEntityMove(a.getEntityId(),
-				// (long) ((ls.getX() * 32.0 - previous.getX() * 32.0) * 10.0),
-				// (long) ((ls.getY() * 32.0 - previous.getY() * 32.0) * 10.0),
-				// (long) ((ls.getZ() * 32.0 - previous.getZ() * 32.0) * 10.0),
-				// true);
-				// ((CraftPlayer)
-				// p).getHandle().playerConnection.sendPacket(packet);
-			//}
 			a.setHeadPose(a.getHeadPose().setX(ls.getPitch() / 90.0 * 0.5 * Math.PI));
 		}
+
+		dirold = v.normalize();
+		old = shoop.getLocation();
 	}
 }

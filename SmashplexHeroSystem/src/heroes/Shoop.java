@@ -32,8 +32,10 @@ import util.TextUtil;
 
 public class Shoop extends Hero {
 
+	private static int smashticks = 10; // 2399
+
 	public Shoop() {
-		super("Shoop", 2399);
+		super("Shoop", smashticks);
 	}
 
 	@Override
@@ -293,7 +295,7 @@ public class Shoop extends Hero {
 		Player p = sp.getPlayer();
 		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
 		p.getInventory().setItem(2, getSmash(0));
-		Cooldown c = new Cooldown(p, 2, 1799);
+		Cooldown c = new Cooldown(p, 2, smashticks);
 		Smashplex.cooldown.add(c);
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
 			@Override

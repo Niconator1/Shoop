@@ -245,7 +245,7 @@ public class Smashplex extends JavaPlugin {
 					}
 				}
 			}
-		}, 0, 3);
+		}, 0, 2);
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
