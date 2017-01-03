@@ -242,8 +242,8 @@ public class Shoop extends Hero {
 			b = p.getEyeLocation();
 			v.normalize().multiply(0.1);
 			// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
-			double bonusxz = 0.4; // 0.35 player model width/length
-			double bonusy = 0.55; // 1.8 player model height
+			double bonusxz = 1.0; // 0.35 player model width/length
+			double bonusy = 0.8; // 1.8 player model height
 			for (double j = 0; j <= 60; j += 0.1) {
 				Location midm = b.add(v);
 				Block c = midm.getBlock();

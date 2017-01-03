@@ -258,7 +258,10 @@ public class Smashplex extends JavaPlugin {
 					Lightningbolt b = bolt.get(i);
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
-					double bonuslengthf = 0.75+0.5;
+					double bonuslengthf = 0.75;
+					if(b.isPassive()){
+						bonuslengthf+=0.5;
+					}
 					double bonuslengthb = -0.5;// -1.5
 					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
 						Vector dir = b.getVector().clone().normalize().multiply(j);
@@ -298,8 +301,8 @@ public class Smashplex extends JavaPlugin {
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
 					// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
-					double bonusxz = 0.4; // 0.35 player model width/length
-					double bonusy = 0.55; // 1.8 player model height
+					double bonusxz = 1.3; // 0.35 player model width/length +0.4
+					double bonusy = 0.8; // 1.8 player model height +0.55
 					double bonuslengthf = 0.75;
 					double bonuslengthb = -1.5;
 					for (LivingEntity le : stand.getWorld().getLivingEntities()) {
@@ -325,6 +328,13 @@ public class Smashplex extends JavaPlugin {
 														if (spt != null) {
 															if (spt.getSelectedHero() != -1) {
 																spt.damage(1.5);
+																Vector base = new Vector(0, 0.095, 0.255);
+																Vector knockback = spt.getKnockback(base,
+																		target.getLocation().toVector()
+																				.subtract(b.start().toVector())
+																				.normalize(),
+																		spt.getMasxHP() - spt.getHP());
+																target.setVelocity(knockback);
 															}
 														}
 													}
