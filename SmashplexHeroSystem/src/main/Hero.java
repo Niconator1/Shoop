@@ -30,7 +30,7 @@ public abstract class Hero {
 
 	public abstract ItemStack getBoots();
 
-	public abstract ItemStack getPrimary();
+	public abstract ItemStack getPrimary(int amount);
 
 	public abstract ItemStack getSecondary(double loaded);
 
@@ -48,6 +48,10 @@ public abstract class Hero {
 	public abstract void doSecondary(SmashPlayer sp);
 
 	public abstract void doSmash(SmashPlayer sp);
+	
+	public abstract void doDamageSound();
+	
+	public abstract void doDeathSound();
 
 	public abstract double getMeleeDamage();
 

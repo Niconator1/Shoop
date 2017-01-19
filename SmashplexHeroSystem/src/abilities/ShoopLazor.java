@@ -48,9 +48,6 @@ public class ShoopLazor {
 			a.setHeadPose(a.getHeadPose().setX(l.getPitch() / 90.0 * 0.5 * Math.PI));
 			alist.add(a);
 		}
-		long time = Math.round(ticks / 20.0);
-		TextUtil.sendTitle(shoop, ChatColor.DARK_RED + "" + time + "s", "", 5, 10, 5);
-
 	}
 
 	public Player getShoop() {
@@ -127,9 +124,8 @@ public class ShoopLazor {
 						locold.getZ(), 0f, 0f, 0f, 0.5f, 1);
 			}
 		}
-		if ((ticks - 10) % 20 == 0) {
-			long time = Math.round((ticks-10) / 20.0);
-			TextUtil.sendTitle(shoop, ChatColor.DARK_RED + "" + time + "s", "", 5, 10, 5);
-		}
+		long time = Math.round(ticks / 20.0);
+		TextUtil.sendTitle(shoop, "", 0, 0, 0);
+		TextUtil.sendSubTitle(shoop, ChatColor.DARK_RED + "" + time + "s", 0, 20, 0);
 	}
 }

@@ -32,7 +32,7 @@ import util.TextUtil;
 
 public class Shoop extends Hero {
 
-	private static int smashticks = 10; // 2399
+	private static int smashticks = 1999;
 
 	public Shoop() {
 		super("Shoop", smashticks);
@@ -78,7 +78,7 @@ public class Shoop extends Hero {
 	}
 
 	@Override
-	public ItemStack getPrimary() {
+	public ItemStack getPrimary(int a) {
 		ItemStack is = new ItemStack(Material.RAW_BEEF);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.GREEN + "Lightning Bolt " + ChatColor.GRAY + "-" + ChatColor.AQUA + " Right Click");
@@ -277,13 +277,13 @@ public class Shoop extends Hero {
 												if (spt != null) {
 													if (spt.getSelectedHero() != -1) {
 														if (charges == 1) {
-															spt.damage(4);
+															spt.damage(3.5);
 														} else if (charges == 2) {
 															spt.damage(5);
 														} else if (charges == 3) {
-															spt.damage(7);
+															spt.damage(6.2);
 														} else if (charges == 4) {
-															spt.damage(8);
+															spt.damage(6.7);
 														} else if (charges == 5) {
 															spt.damage(18);
 														}
@@ -312,10 +312,10 @@ public class Shoop extends Hero {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
 			@Override
 			public void run() {
-				if (p.hasPermission("smash.admin")) {
-					ShoopLazor sl = new ShoopLazor(p);
-					Smashplex.lazor.add(sl);
-				}
+				// if (p.hasPermission("smash.admin")) {
+				ShoopLazor sl = new ShoopLazor(p);
+				Smashplex.lazor.add(sl);
+				// }
 				SoundUtil.sendPublicSoundPacket("mob.wither.death", 0.5f);
 			}
 		}, 45);
@@ -324,6 +324,16 @@ public class Shoop extends Hero {
 	@Override
 	public double getMeleeDamage() {
 		return 2.0;
+	}
+
+	@Override
+	public void doDamageSound() {
+		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.pain", 1f);
+	}
+
+	@Override
+	public void doDeathSound() {
+		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.smashed", 1f);
 	}
 
 }

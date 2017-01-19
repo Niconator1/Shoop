@@ -1,5 +1,5 @@
 name: Smashplex
-version: 0.1
+version: 0.5
 description: >
   A community recreation of the game smash heroes to improve balance and test new heroes
 
@@ -12,13 +12,20 @@ commands:
         description: Disables/enables the plugin
     shoop:
         description: Selects shoop as your hero
+    skullfire:
+        description: Selects skullfire as your hero
     removehero:
         description: Removes all parts of the current selected hero
+    setkb:
+        description: Sets the knockback value
 permissions:
     smash.admin:
         default: false
-        description: Allows disabling/enabling of the plugin
+        description: Allows admin control of the plugin
     smash.shoop:
         default: false
         description: All rights for shoop
+    smash.skull:
+        default: false
+        description: All rights for skullfire
         

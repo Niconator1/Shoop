@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,8 +19,11 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.Vector;
 
 import abilities.Cooldown;
+import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
+import util.KnockbackUtil;
 import util.SoundUtil;
 import util.TextUtil;
 
@@ -27,14 +31,17 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<SmashPlayer> players = new ArrayList<SmashPlayer>();
 	public static ArrayList<Lightningbolt> bolt = new ArrayList<Lightningbolt>();
 	public static ArrayList<ShoopLazor> lazor = new ArrayList<ShoopLazor>();
+	public static ArrayList<Grenade> nade = new ArrayList<Grenade>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
 	public static boolean smash = false;
+	public static double knockback = 0.125;
 	public static Objective obj;
 
 	public void onEnable() {
 		this.getLogger().info("Smashplex enabled");
 		getServer().getPluginManager().registerEvents(new EventManager(), this);
 		loopsSmash();
+		loopsSkullfire();
 		loopsShoop();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			SmashPlayer sp = new SmashPlayer(p, 100);
@@ -58,6 +65,9 @@ public class Smashplex extends JavaPlugin {
 		}
 		for (int i = 0; i < bolt.size(); i++) {
 			bolt.get(i).getStand().remove();
+		}
+		for (int i = 0; i < nade.size(); i++) {
+			nade.get(i).getStand().remove();
 		}
 		for (int i = 0; i < lazor.size(); i++) {
 			lazor.get(i).finish();
@@ -86,6 +96,23 @@ public class Smashplex extends JavaPlugin {
 				sender.sendMessage("You don't have the permission to do this command");
 			}
 
+		} else if (cmd.getName().equalsIgnoreCase("setkb")) {
+			if (sender.hasPermission("smash.admin")) {
+				if (args.length > 0) {
+					try {
+						double value = Double.parseDouble(args[0]);
+						knockback = value;
+						sender.sendMessage("Upward knockback set to " + value);
+						return true;
+					} catch (NumberFormatException e) {
+						sender.sendMessage("Not a valid number");
+					}
+				} else {
+					sender.sendMessage("Usage: /setkb <value>");
+				}
+			} else {
+				sender.sendMessage("You don't have the permission to do this command");
+			}
 		} else if (cmd.getName().equalsIgnoreCase("removehero")) {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
@@ -118,8 +145,36 @@ public class Smashplex extends JavaPlugin {
 							sp.setSelectedHero(0);
 							sp.giveHeroItems();
 							SoundUtil.sendSoundPacket(p, "ShoopDaWhoop.select", p.getLocation());
+							sender.sendMessage("You selected shoop");
+						} else {
+							sender.sendMessage("You already have a hero selected");
 						}
-						sender.sendMessage("You selected shoop");
+					} else {
+						sender.sendMessage("Error #0 please contact NiconatorTM");
+					}
+				} else {
+					sender.sendMessage("The plugin is disabled right now");
+				}
+			} else {
+				sender.sendMessage("This command can only be used as a player");
+			}
+		} else if (cmd.getName().equalsIgnoreCase("skullfire")) {
+			if (sender instanceof Player) {
+				if (smash) {
+					Player p = (Player) sender;
+					SmashPlayer sp = getSmashPlayer(p);
+					if (sp != null) {
+						if (sp.getSelectedHero() == -1) {
+							sp.setSelectedHero(1);
+							sp.setCharges(7);
+							sp.giveHeroItems();
+							SoundUtil.sendSoundPacket(p, "Skullfire.select", p.getLocation());
+							Cooldown c = new Cooldown(p, 0, -1);
+							TextUtil.sendCooldownMessage(c);
+							sender.sendMessage("You selected skullfire");
+						} else {
+							sender.sendMessage("You already have a hero selected");
+						}
 					} else {
 						sender.sendMessage("Error #0 please contact NiconatorTM");
 					}
@@ -167,13 +222,23 @@ public class Smashplex extends JavaPlugin {
 						}
 					}
 					if (c.getTicks() < 0) {
-						if (c.getSkill() == 2) {
+						if (c.getSkill() == 0) {
+							if (p.isOnline()) {
+								SmashPlayer sp = getSmashPlayer(p);
+								if (sp != null) {
+									if (sp.getSelectedHero() == 1) {
+										sp.setCharges(7);
+										p.getInventory().setItem(0, sp.getHero().getPrimary(sp.getCharges()));
+									}
+								}
+							}
+						} else if (c.getSkill() == 2) {
 							if (p.isOnline()) {
 								SmashPlayer sp = getSmashPlayer(p);
 								if (sp != null) {
 									if (sp.getSelectedHero() != -1) {
 										p.getInventory().setItem(2, sp.getHero().getSmash(1.0));
-										TextUtil.sendTitle(p, "",
+										TextUtil.sendSubTitle(p,
 												ChatColor.GREEN + "SMASH READY! " + ChatColor.AQUA + "Press [3]", 0, 30,
 												0);
 										SoundUtil.sendSoundPacket(p, "mob.wither.spawn", p.getLocation(), 2f);
@@ -193,10 +258,12 @@ public class Smashplex extends JavaPlugin {
 					SmashPlayer sp = getSmashPlayer(p);
 					if (sp != null) {
 						if (sp.getSelectedHero() != -1) {
-							if (p.getLevel() < 100) {
-								p.setLevel(p.getLevel() + 1);
-								float pro = p.getLevel() / (100 + 0.000001f);
-								p.setExp(pro);
+							if (sp.getSelectedHero() != 1) {
+								if (p.getLevel() < 100) {
+									p.setLevel(p.getLevel() + 1);
+									float pro = p.getLevel() / (100 + 0.000001f);
+									p.setExp(pro);
+								}
 							}
 						}
 					}
@@ -217,7 +284,6 @@ public class Smashplex extends JavaPlugin {
 						}
 						obj.setDisplayName(ChatColor.RED + "❤");
 						obj.setDisplaySlot(DisplaySlot.BELOW_NAME);
-						obj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 					}
 					SmashPlayer sp = getSmashPlayer(p);
 					if (sp != null) {
@@ -259,8 +325,8 @@ public class Smashplex extends JavaPlugin {
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
 					double bonuslengthf = 0.75;
-					if(b.isPassive()){
-						bonuslengthf+=0.5;
+					if (b.isPassive()) {
+						bonuslengthf += 0.5;
 					}
 					double bonuslengthb = -0.5;// -1.5
 					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
@@ -328,13 +394,16 @@ public class Smashplex extends JavaPlugin {
 														if (spt != null) {
 															if (spt.getSelectedHero() != -1) {
 																spt.damage(1.5);
-																Vector base = new Vector(0, 0.095, 0.255);
-																Vector knockback = spt.getKnockback(base,
-																		target.getLocation().toVector()
-																				.subtract(b.start().toVector())
-																				.normalize(),
-																		spt.getMasxHP() - spt.getHP());
-																target.setVelocity(knockback);
+																// Vector base =
+																// new Vector(0,
+																// 0.100375,
+																// 0.255);
+																Vector knockback = KnockbackUtil.getKnockback(spt);
+																PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(
+																		target.getEntityId(), knockback.getX(),
+																		knockback.getY(), knockback.getZ());
+																((CraftPlayer) target).getHandle().playerConnection
+																		.sendPacket(packet);
 															}
 														}
 													}
@@ -376,7 +445,7 @@ public class Smashplex extends JavaPlugin {
 							bolt.remove(i);
 						}
 					} else {
-						if (mid.distance(b.start()) > 70) {
+						if (mid.distance(b.start()) > 120) {
 							b.getStand().remove();
 							bolt.remove(i);
 						}
@@ -389,6 +458,40 @@ public class Smashplex extends JavaPlugin {
 					if (sl.getTicks() < 0) {
 						sl.finish();
 						lazor.remove(i);
+					}
+				}
+			}
+		}, 0, 1);
+	}
+
+	private void loopsSkullfire() {
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				// Block collision check
+				for (int i = 0; i < nade.size(); i++) {
+					Grenade b = nade.get(i);
+					ArmorStand stand = b.getStand();
+					Location mid = stand.getEyeLocation();
+					double bonuslengthf = 0.1;
+					double bonuslengthb = -0.1;
+					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
+						Vector dir = b.getVector().clone().normalize().multiply(j);
+						Location midm = mid.clone().add(dir);
+						Block c = midm.getBlock();
+						if (c.getType().isSolid()) {
+							if (c.getType() == Material.STEP) {
+								if (midm.getY() % midm.getBlockY() < 0.5) {
+									stand.remove();
+									nade.remove(i);
+									break;
+								}
+							} else {
+								stand.remove();
+								nade.remove(i);
+								break;
+							}
+						}
 					}
 				}
 			}

@@ -45,34 +45,39 @@ public class EventManager implements Listener {
 	public void onSneak(PlayerToggleSneakEvent e) {
 		Player p = e.getPlayer();
 		if (e.isSneaking()) {
-			if (p.getLevel() >= 98) {
-				p.setSneaking(false);
-				double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-				double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
-				double x = Math.sin(pitch) * Math.cos(yaw);
-				double y = Math.cos(pitch);
-				double z = Math.sin(pitch) * Math.sin(yaw);
-				Vector v = new Vector(x, y, z).multiply(2.0);
-				Location l = p.getLocation();
-				double xo = Math.cos(yaw);
-				double zo = -Math.sin(yaw);
-				Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
-				l.add(vo.getX(), -0.3, vo.getZ());
-				ArmorStand f = (ArmorStand) p.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
-				CraftArmorStand a = (CraftArmorStand) f;
-				a.getHandle().noclip = true;
-				f.setVelocity(v);
-				f.setVisible(false);
-				f.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
-				f.setHeadPose(f.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
-				f.setPassenger(p);
-				Lightningbolt bolt = new Lightningbolt(f, v, e.getPlayer(), l, true);
-				Smashplex.bolt.add(bolt);
-				p.setLevel(p.getLevel() - 98);
-				float pro = p.getLevel() / (100 + 0.000001f);
-				p.setExp(pro);
-				e.setCancelled(true);
+			SmashPlayer sp = Smashplex.getSmashPlayer(p);
+			if (sp != null) {
+				if (sp.getSelectedHero() == 0) {
+					if (p.getLevel() >= 98) {
+						p.setSneaking(false);
+						double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+						double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+						double x = Math.sin(pitch) * Math.cos(yaw);
+						double y = Math.cos(pitch);
+						double z = Math.sin(pitch) * Math.sin(yaw);
+						Vector v = new Vector(x, y, z).multiply(2.0);
+						Location l = p.getLocation();
+						double xo = Math.cos(yaw);
+						double zo = -Math.sin(yaw);
+						Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
+						l.add(vo.getX(), -0.3, vo.getZ());
+						ArmorStand f = (ArmorStand) p.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
+						CraftArmorStand a = (CraftArmorStand) f;
+						a.getHandle().noclip = true;
+						f.setVelocity(v);
+						f.setVisible(false);
+						f.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
+						f.setHeadPose(f.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+						SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
+						f.setPassenger(p);
+						Lightningbolt bolt = new Lightningbolt(f, v, e.getPlayer(), l, true);
+						Smashplex.bolt.add(bolt);
+						p.setLevel(p.getLevel() - 98);
+						float pro = p.getLevel() / (100 + 0.000001f);
+						p.setExp(pro);
+						e.setCancelled(true);
+					}
+				}
 			}
 		}
 	}
@@ -102,7 +107,7 @@ public class EventManager implements Listener {
 		if (sp != null) {
 			if (sp.getSelectedHero() != -1) {
 				if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
-					if (sp.getRemainingJumps() > 0) {
+					if (sp.getRemainingJumps() > 0 || sp.getFlameJump()) {
 						double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
 						double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 						double x = Math.sin(pitch) * Math.cos(yaw);
@@ -117,11 +122,17 @@ public class EventManager implements Listener {
 							double radius = 1.37;
 							double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
 							double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
-							ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD, p.getLocation().add(cx, 0, cz),
-									2);
+							if (sp.getSelectedHero() == 1) {
+								ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE,
+										p.getLocation().add(cx, 0, cz), 2);
+							} else {
+								ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD,
+										p.getLocation().add(cx, 0, cz), 2);
+							}
 
 						}
-						if (sp.getRemainingJumps() == 0) {
+						sp.setFlameJump(false);
+						if (sp.getRemainingJumps() <= 0) {
 							p.setAllowFlight(false);
 						}
 					}
@@ -149,16 +160,17 @@ public class EventManager implements Listener {
 	}
 
 	@EventHandler
-	public void onChat(AsyncPlayerChatEvent event){
+	public void onChat(AsyncPlayerChatEvent event) {
 		Player p = event.getPlayer();
 		for (Player p2 : Bukkit.getOnlinePlayers()) {
-			if(p2.getUniqueId().compareTo(p.getUniqueId())!=0){
-				if(event.getMessage().contains(p2.getName())){
+			if (p2.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+				if (event.getMessage().contains(p2.getName())) {
 					SoundUtil.sendSoundPacket(p2, "random.successful_hit", p2.getLocation());
 				}
 			}
 		}
 	}
+
 	@EventHandler
 	public void onRightClick(PlayerInteractEvent e) {
 		if (e.getItem() != null) {
@@ -170,6 +182,11 @@ public class EventManager implements Listener {
 						if (Smashplex.isPrimaryReady(p)) {
 							if (Smashplex.smash) {
 								sp.doPrimary();
+							}
+						} else {
+							if (sp.getSelectedHero() == 1) {
+								p.sendMessage(ChatColor.YELLOW + "Reloading... ");
+								SoundUtil.sendSoundPacket(p, "SmashCrystal.notready", p.getLocation());
 							}
 						}
 					}
@@ -188,6 +205,7 @@ public class EventManager implements Listener {
 				if (e.isOnGround()) {
 					p.setAllowFlight(true);
 					sp.setJumps(2);
+					sp.setFlameJump(false);
 				}
 			}
 		}

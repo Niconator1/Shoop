@@ -5,10 +5,10 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import abilities.Cooldown;
 import heroes.Shoop;
+import heroes.Skullfire;
 
 public class SmashPlayer {
 
@@ -16,7 +16,10 @@ public class SmashPlayer {
 	private int hero = -1;
 	private int charges = 0;
 	private int jumps = 2;
+	private boolean flamejump = false;
 	private double maxhp;
+	private long lastdmgsound = 0;
+	public long lastshottime = 0;
 
 	public SmashPlayer(Player p, double maxhp) {
 		this.p = p;
@@ -62,9 +65,19 @@ public class SmashPlayer {
 		this.hero = hero;
 	}
 
+	public void setFlameJump(boolean b) {
+		flamejump = b;
+	}
+
+	public boolean getFlameJump() {
+		return flamejump;
+	}
+
 	public Hero getHero() {
 		if (hero == 0) {
 			return new Shoop();
+		} else if (hero == 1) {
+			return new Skullfire();
 		}
 		return null;
 	}
@@ -82,6 +95,8 @@ public class SmashPlayer {
 		p.setWalkSpeed(0.2f);
 		p.setLevel(0);
 		p.setExp(0);
+		jumps = 2;
+		charges = 0;
 	}
 
 	public void giveHeroItems() {
@@ -89,7 +104,7 @@ public class SmashPlayer {
 		p.getInventory().setChestplate(getHero().getChestplate());
 		p.getInventory().setLeggings(getHero().getLeggings());
 		p.getInventory().setBoots(getHero().getBoots());
-		p.getInventory().setItem(0, getHero().getPrimary());
+		p.getInventory().setItem(0, getHero().getPrimary(charges));
 		p.getInventory().setItem(1, getHero().getSecondary(0));
 		p.getInventory().setItem(2, getHero().getSmash(0));
 		p.setAllowFlight(true);
@@ -124,22 +139,27 @@ public class SmashPlayer {
 			CraftLivingEntity cle = ((CraftLivingEntity) p);
 			cle.getHandle().world.broadcastEntityEffect(cle.getHandle(), (byte) 2);
 			if (getHP() - amount >= 0) {
+				if (System.currentTimeMillis() - lastdmgsound > 1000) {
+					this.getHero().doDamageSound();
+					lastdmgsound = System.currentTimeMillis();
+				}
 				double health = (getHP() - amount) / (maxhp) * p.getMaxHealth();
 				p.setHealth(health);
 			} else {
-				p.setHealth(0);
+				// this.getHero().doDeathSound();
+				// p.setHealth(0);
 			}
 		}
 	}
 
-	public Vector getKnockback(Vector base, Vector vector, double hp) {
-		double ey = 0.0047 * hp;
-		double exz = 0.0125 * hp;
-		Vector v = new Vector(base.getZ() * vector.getX(), base.getY() + base.getZ() * vector.getY(),
-				base.getZ() * vector.getZ());
-		Vector w = new Vector(exz * vector.getX(), ey + exz * vector.getY(), exz * vector.getZ());
-		return v.add(w);
-	}
+//	public Vector getKnockback(Vector base, Vector vector, double hp) {
+//		double ey = 0.005 * hp;
+//		double exz = 0.0125 * hp;
+//		Vector v = new Vector(base.getZ() * vector.getX(), base.getY() + 0.25 * base.getZ() * vector.getY(),
+//				base.getZ() * vector.getZ());
+//		Vector w = new Vector(exz * vector.getX(), ey + exz * vector.getY() * Smashplex.knockback, exz * vector.getZ());
+//		return v.add(w);
+//	}
 
 	public double getMasxHP() {
 		return maxhp;
