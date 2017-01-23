@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -25,9 +26,10 @@ import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
+import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
-import util.TextUtil;
 
 public class Skullfire extends Hero {
 
@@ -95,13 +97,13 @@ public class Skullfire extends Hero {
 	}
 
 	@Override
-	public ItemStack getSecondary(double charges) {
-		ItemStack is = new ItemStack(Material.IRON_PICKAXE, 1, (short) 250);
+	public ItemStack getSecondary(double loaded) {
+		ItemStack is = new ItemStack(Material.IRON_PICKAXE, 1, (short) (250 - (int) (loaded * 250.0 + 0.5)));
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.RED + "Charged Lazor " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
-		if (charges > 0) {
-			is = new ItemStack(Material.INK_SACK, (int) (charges * 5.0 + 0.5), (short) 2);
-			im.setDisplayName(ChatColor.GREEN + "Charged Lazor " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
+		im.setDisplayName(ChatColor.RED + "Nade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
+		if (loaded >= 1.0) {
+			is = new ItemStack(Material.INK_SACK, 1, (short) 2);
+			im.setDisplayName(ChatColor.GREEN + "Nade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		}
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add("");
@@ -141,7 +143,7 @@ public class Skullfire extends Hero {
 	@Override
 	public void doPrimary(SmashPlayer sp) {
 		Player p = sp.getPlayer();
-		if (sp.getCharges() > 0 && System.currentTimeMillis() - sp.lastshottime > 600) {
+		if (sp.getCharges() > 0 && System.currentTimeMillis() - sp.lastshottime > 200) {
 			if (p.isSneaking()) {
 				if (sp.getCharges() > 1) {
 					doShot(sp);
@@ -246,6 +248,12 @@ public class Skullfire extends Hero {
 														reduction = 3;
 													}
 													spt.damage(4 - reduction);
+													Vector knockback = KnockbackUtil.getKnockback(spt);
+													PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(
+															target.getEntityId(), knockback.getX(), knockback.getY(),
+															knockback.getZ());
+													((CraftPlayer) target).getHandle().playerConnection
+															.sendPacket(packet);
 													didhit = true;
 													sp.setFlameJump(true);
 													p.setAllowFlight(true);
@@ -268,7 +276,15 @@ public class Skullfire extends Hero {
 			} else {
 				p.setExp(0);
 				p.setLevel(0);
-				// TODO: Secondary reset
+				p.getInventory().setItem(1, sp.getHero().getSecondary(1.0));
+				for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+					Cooldown c = Smashplex.cooldown.get(i);
+					if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+						if (c.getSkill() == 1) {
+							Smashplex.cooldown.remove(i);
+						}
+					}
+				}
 			}
 		} else {
 			p.setExp(0);
@@ -286,18 +302,18 @@ public class Skullfire extends Hero {
 		double z = Math.sin(pitch) * Math.sin(yaw);
 		Location l = p.getLocation();
 		Vector v = new Vector(1.8 * x, 0.2 + y * 1.8, 1.8 * z);
+		Vector vm = new Vector(v.getX(), v.getY() / 0.98 + 0.08, v.getZ());
 		ArmorStand f = (ArmorStand) p.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
 		CraftArmorStand a = (CraftArmorStand) f;
 		a.getHandle().noclip = true;
-		f.setVelocity(v);
 		f.setVisible(false);
 		f.setHelmet(new ItemStack(Material.PUMPKIN, 1));
 		f.setHeadPose(f.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-		SoundUtil.sendPublicSoundPacket("Skullfire.active", p.getLocation());
+		f.setVelocity(vm);
+		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", p.getLocation());
 		Cooldown c = new Cooldown(p, 1, 200);
-		TextUtil.sendCooldownMessage(c);
 		Smashplex.cooldown.add(c);
-		Grenade nade = new Grenade(f, v, p, l);
+		Grenade nade = new Grenade(f, p.getLocation().getPitch(), p.getLocation().getYaw(), p, l);
 		Smashplex.nade.add(nade);
 	}
 

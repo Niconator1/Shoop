@@ -28,6 +28,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import abilities.Cooldown;
+import abilities.FlameJump;
 import abilities.Lightningbolt;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import util.ParticleUtil;
@@ -118,18 +119,22 @@ public class EventManager implements Listener {
 						event.setCancelled(true);
 						sp.setJumps(sp.getRemainingJumps() - 1);
 						SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation());
-						for (int i = 0; i < 20; i++) {
-							double radius = 1.37;
-							double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
-							double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
-							if (sp.getSelectedHero() == 1) {
-								ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE,
-										p.getLocation().add(cx, 0, cz), 2);
-							} else {
-								ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD,
-										p.getLocation().add(cx, 0, cz), 2);
-							}
+						if (sp.getFlameJump()) {
+							new FlameJump(p.getLocation()).doJump();
+						} else {
+							for (int i = 0; i < 20; i++) {
+								double radius = 1.37;
+								double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
+								double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
+								if (sp.getSelectedHero() == 1) {
+									ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE,
+											p.getLocation().add(cx, 0, cz), 2);
+								} else {
+									ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD,
+											p.getLocation().add(cx, 0, cz), 2);
+								}
 
+							}
 						}
 						sp.setFlameJump(false);
 						if (sp.getRemainingJumps() <= 0) {
@@ -218,9 +223,23 @@ public class EventManager implements Listener {
 		if (sp != null) {
 			if (sp.getSelectedHero() != -1) {
 				if (event.getNewSlot() == 1) {
-					if (Smashplex.smash) {
-						sp.doSecondary();
+					if (Smashplex.isSecondaryReady(p)) {
+						if (Smashplex.smash) {
+							sp.doSecondary();
+						}
+					} else {
+						for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+							Cooldown c = Smashplex.cooldown.get(i);
+							if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+								if (c.getSkill() == 1) {
+									long time = Math.round(c.getTicks() / 20.0);
+									p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
+											+ " seconds remaining");
+								}
+							}
+						}
 					}
+
 				} else if (event.getNewSlot() == 2) {
 					if (Smashplex.isSmashReady(p)) {
 						if (Smashplex.smash) {

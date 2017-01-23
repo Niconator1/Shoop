@@ -22,8 +22,10 @@ import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
 import util.KnockbackUtil;
+import util.ParticleUtil;
 import util.SoundUtil;
 import util.TextUtil;
 
@@ -166,10 +168,12 @@ public class Smashplex extends JavaPlugin {
 					if (sp != null) {
 						if (sp.getSelectedHero() == -1) {
 							sp.setSelectedHero(1);
-							sp.setCharges(7);
+							sp.setCharges(99);
 							sp.giveHeroItems();
 							SoundUtil.sendSoundPacket(p, "Skullfire.select", p.getLocation());
 							Cooldown c = new Cooldown(p, 0, -1);
+							Cooldown c2 = new Cooldown(p, 1, -1);
+							cooldown.add(c2);
 							TextUtil.sendCooldownMessage(c);
 							sender.sendMessage("You selected skullfire");
 						} else {
@@ -210,6 +214,16 @@ public class Smashplex extends JavaPlugin {
 						if (p.isOnline()) {
 							TextUtil.sendCooldownMessage(c);
 						}
+					} else if (c.getSkill() == 1) {
+						if (p.isOnline()) {
+							SmashPlayer sp = getSmashPlayer(p);
+							if (sp != null) {
+								if (sp.getSelectedHero() != -1) {
+									p.getInventory().setItem(1, sp.getHero()
+											.getSecondary(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+								}
+							}
+						}
 					} else if (c.getSkill() == 2) {
 						if (p.isOnline()) {
 							SmashPlayer sp = getSmashPlayer(p);
@@ -227,8 +241,17 @@ public class Smashplex extends JavaPlugin {
 								SmashPlayer sp = getSmashPlayer(p);
 								if (sp != null) {
 									if (sp.getSelectedHero() == 1) {
-										sp.setCharges(7);
+										sp.setCharges(99);
 										p.getInventory().setItem(0, sp.getHero().getPrimary(sp.getCharges()));
+									}
+								}
+							}
+						} else if (c.getSkill() == 1) {
+							if (p.isOnline()) {
+								SmashPlayer sp = getSmashPlayer(p);
+								if (sp != null) {
+									if (sp.getSelectedHero() != -1) {
+										p.getInventory().setItem(1, sp.getHero().getSecondary(1.0));
 									}
 								}
 							}
@@ -473,26 +496,28 @@ public class Smashplex extends JavaPlugin {
 					Grenade b = nade.get(i);
 					ArmorStand stand = b.getStand();
 					Location mid = stand.getEyeLocation();
-					double bonuslengthf = 0.1;
-					double bonuslengthb = -0.1;
-					for (double j = bonuslengthf; j >= bonuslengthb; j -= 0.05) {
-						Vector dir = b.getVector().clone().normalize().multiply(j);
-						Location midm = mid.clone().add(dir);
-						Block c = midm.getBlock();
-						if (c.getType().isSolid()) {
-							if (c.getType() == Material.STEP) {
-								if (midm.getY() % midm.getBlockY() < 0.5) {
-									stand.remove();
-									nade.remove(i);
-									break;
-								}
-							} else {
+					Block c = mid.getBlock();
+					if (c.getType().isSolid()) {
+						if (c.getType() == Material.STEP) {
+							if (mid.getY() % mid.getBlockY() < 0.5) {
+								ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_HUGE, mid, 1);
+								SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade", mid);
 								stand.remove();
 								nade.remove(i);
 								break;
 							}
+						} else {
+							ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_HUGE, mid, 1);
+							SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade", mid);
+							stand.remove();
+							nade.remove(i);
+							break;
 						}
 					}
+				}
+				for (int i = 0; i < nade.size(); i++) {
+					Grenade b = nade.get(i);
+					b.getStand().setVelocity(KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(), b.getTick() / 2));
 				}
 			}
 		}, 0, 1);
@@ -503,6 +528,18 @@ public class Smashplex extends JavaPlugin {
 			Cooldown c = cooldown.get(i);
 			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
 				if (c.getSkill() == 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public static boolean isSecondaryReady(Player p) {
+		for (int i = 0; i < cooldown.size(); i++) {
+			Cooldown c = cooldown.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				if (c.getSkill() == 1) {
 					return false;
 				}
 			}

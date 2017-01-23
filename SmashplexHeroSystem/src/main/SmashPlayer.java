@@ -152,15 +152,6 @@ public class SmashPlayer {
 		}
 	}
 
-//	public Vector getKnockback(Vector base, Vector vector, double hp) {
-//		double ey = 0.005 * hp;
-//		double exz = 0.0125 * hp;
-//		Vector v = new Vector(base.getZ() * vector.getX(), base.getY() + 0.25 * base.getZ() * vector.getY(),
-//				base.getZ() * vector.getZ());
-//		Vector w = new Vector(exz * vector.getX(), ey + exz * vector.getY() * Smashplex.knockback, exz * vector.getZ());
-//		return v.add(w);
-//	}
-
 	public double getMasxHP() {
 		return maxhp;
 	}
