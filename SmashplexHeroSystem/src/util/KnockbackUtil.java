@@ -37,14 +37,14 @@ public class KnockbackUtil {
 		if (tick == 0) {
 			return new Vector(ixz * x, iy / 0.98 + 0.08, ixz * z);
 		} else if (tick == 1) {
-			double firstxz = 0.018 - yp * 0.018;
+			double firstxz = 0.018 - Math.abs(yp) * 0.018;
 			double firsty = 0.052 + yp * 0.018;
 			double remainingy = iy - firsty;
 			double remainingxz = ixz - firstxz;
 			return new Vector(remainingxz * x, remainingy / 0.98 + 0.08, remainingxz * z);
 		} else {
-			double firstxz = 0.018 - yp * 0.018;
-			double numberxz = 0.05455 - yp * 0.05455;
+			double firstxz = 0.018 - Math.abs(yp) * 0.018;
+			double numberxz = 0.05455 - Math.abs(yp) * 0.05455;
 			double firsty = 0.052 + yp * 0.018;
 			double numbery = 0.15758 + yp * 0.05455;
 			double remainingy = iy - firsty;
