@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -26,8 +25,6 @@ import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
-import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
 
@@ -106,17 +103,15 @@ public class Skullfire extends Hero {
 			im.setDisplayName(ChatColor.GREEN + "Nade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		}
 		ArrayList<String> lore = new ArrayList<String>();
-		lore.add("");
-		lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [2]" + ChatColor.GRAY + " to consume");
-		lore.add(ChatColor.GRAY + "all charges you have to fire a");
-		lore.add(ChatColor.GRAY + "long-range beam, dealing damage");
-		lore.add(ChatColor.GRAY + "to enemies it hits. The more");
-		lore.add(ChatColor.GRAY + "charges you have, the higher the");
-		lore.add(ChatColor.GRAY + "damage will be.");
-		im.setLore(lore);
-		is.setItemMeta(im);
-		return is;
-	}
+        lore.add("");
+        lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [2]" + ChatColor.GRAY + " to throw a");
+        lore.add(ChatColor.GRAY + "grenade that will explode");
+        lore.add(ChatColor.GRAY + "instantly upon impact with a");
+        lore.add(ChatColor.GRAY + "player or a block.");
+        im.setLore(lore);
+        is.setItemMeta(im);
+        return is;
+    }
 
 	@Override
 	public ItemStack getSmash(double loaded) {
@@ -248,12 +243,7 @@ public class Skullfire extends Hero {
 														reduction = 3;
 													}
 													spt.damage(4 - reduction);
-													Vector knockback = KnockbackUtil.getKnockback(spt);
-													PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(
-															target.getEntityId(), knockback.getX(), knockback.getY(),
-															knockback.getZ());
-													((CraftPlayer) target).getHandle().playerConnection
-															.sendPacket(packet);
+													//TODO: KB
 													didhit = true;
 													sp.setFlameJump(true);
 													p.setAllowFlight(true);

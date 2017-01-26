@@ -6,15 +6,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import main.SmashPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
 
 public class KnockbackUtil {
-	public static Vector getKnockback(SmashPlayer sp) {
-		double sshp = sp.getMasxHP() - sp.getHP();
-		double ey = 0.0125 * sshp;
-		return new Vector(0, ey, 0);
-	}
 
 	public static void sendPublicVelocityPacket(Entity f, Vector v) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -54,6 +48,51 @@ public class KnockbackUtil {
 				remainingxz -= numberxz * Math.pow(0.9703, i);
 			}
 			return new Vector(remainingxz * x, remainingy / 0.98 + 0.08, remainingxz * z);
+		}
+	}
+
+	public static Vector getShoopPrimaryVelocity(double angley, double anglexz, double hp) {
+		double pitch = ((angley + 90.0) * Math.PI) / 180.0;
+		// double yaw = ((anglexz + 90.0) * Math.PI) / 180.0;
+		// double x = Math.cos(yaw);
+		// double z = Math.sin(yaw);
+		// double xzp = Math.sin(pitch);
+		// double ixz = xzp * 1.8;
+		double yp = Math.cos(pitch);
+		double iy = 0.0;
+		if (yp >= 0.0) {
+			iy = yp * 0.1325 + 0.10125;
+		} else {
+			iy = yp * 0.335 + 0.10125;
+		}
+		// double numberxz = 0.05455 - Math.abs(yp) * 0.05455;
+		// double remainingxz = ixz - firstxz;
+		double numbery = hp * yp * (0.0075 + 0.005);
+		double remainingy = iy + numbery;
+		return new Vector(0, remainingy + 0.08 * 0.98, 0);
+	}
+
+	public static Vector getFinalVelocity(Vector base, Vector kb) {
+		if (base.getY() >= 0) {
+			if (kb.getY() > 0) {
+				if (kb.getY() > base.getY()) {
+					return new Vector(base.getX(), kb.getY(), base.getZ());
+				} else {
+					return base;
+				}
+			} else {
+				return new Vector(base.getX(), base.getY() + kb.getY(), base.getZ());
+			}
+		} else {
+			if (kb.getY() < 0) {
+				if (kb.getY() < base.getY()) {
+					return new Vector(base.getX(), kb.getY(), base.getZ());
+				} else {
+					return base;
+				}
+			} else {
+				return new Vector(base.getX(), base.getY() + kb.getY(), base.getZ());
+			}
 		}
 	}
 

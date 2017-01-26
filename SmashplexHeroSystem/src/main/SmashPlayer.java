@@ -1,5 +1,6 @@
 package main;
 
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
@@ -146,8 +147,10 @@ public class SmashPlayer {
 				double health = (getHP() - amount) / (maxhp) * p.getMaxHealth();
 				p.setHealth(health);
 			} else {
-				// this.getHero().doDeathSound();
-				// p.setHealth(0);
+				p.setHealth(20);
+				p.sendMessage(ChatColor.YELLOW + "You died.");
+				p.teleport(p.getWorld().getSpawnLocation());
+				this.getHero().doDeathSound();
 			}
 		}
 	}

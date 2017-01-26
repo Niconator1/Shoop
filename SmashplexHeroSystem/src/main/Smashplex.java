@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,7 +22,6 @@ import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
 import net.minecraft.server.v1_8_R3.EnumParticle;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
 import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
@@ -417,16 +415,14 @@ public class Smashplex extends JavaPlugin {
 														if (spt != null) {
 															if (spt.getSelectedHero() != -1) {
 																spt.damage(1.5);
-																// Vector base =
-																// new Vector(0,
-																// 0.100375,
-																// 0.255);
-																Vector knockback = KnockbackUtil.getKnockback(spt);
-																PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(
-																		target.getEntityId(), knockback.getX(),
-																		knockback.getY(), knockback.getZ());
-																((CraftPlayer) target).getHandle().playerConnection
-																		.sendPacket(packet);
+																Vector kb = KnockbackUtil.getShoopPrimaryVelocity(
+																		b.getShoop().getLocation().getPitch(),
+																		b.getShoop().getLocation().getYaw(),
+																		spt.getMasxHP() - spt.getHP());
+																Vector ret = KnockbackUtil
+																		.getFinalVelocity(target.getVelocity(), kb);
+																b.getShoop().sendMessage(ret.getY() + " "+kb.getY());
+																target.setVelocity(ret);
 															}
 														}
 													}
