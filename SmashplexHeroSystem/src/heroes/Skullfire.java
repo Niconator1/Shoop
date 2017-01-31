@@ -97,10 +97,10 @@ public class Skullfire extends Hero {
 	public ItemStack getSecondary(double loaded) {
 		ItemStack is = new ItemStack(Material.IRON_PICKAXE, 1, (short) (250 - (int) (loaded * 250.0 + 0.5)));
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.RED + "Nade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
+		im.setDisplayName(ChatColor.RED + "Grenade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		if (loaded >= 1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 2);
-			im.setDisplayName(ChatColor.GREEN + "Nade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
+			im.setDisplayName(ChatColor.GREEN + "Grenade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		}
 		ArrayList<String> lore = new ArrayList<String>();
         lore.add("");
