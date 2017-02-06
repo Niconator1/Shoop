@@ -69,7 +69,7 @@ public class Smashplex extends JavaPlugin {
 			bolt.get(i).getStand().die();
 		}
 		for (int i = 0; i < nade.size(); i++) {
-			nade.get(i).getStand().remove();
+			nade.get(i).getStand().die();
 		}
 		for (int i = 0; i < lazor.size(); i++) {
 			lazor.get(i).finish();
@@ -490,7 +490,8 @@ public class Smashplex extends JavaPlugin {
 				// Block collision check
 				for (int i = 0; i < nade.size(); i++) {
 					Grenade b = nade.get(i);
-					ArmorStand stand = b.getStand();
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
 					Location mid = stand.getEyeLocation();
 					Block c = mid.getBlock();
 					if (c.getType().isSolid()) {
@@ -513,7 +514,22 @@ public class Smashplex extends JavaPlugin {
 				}
 				for (int i = 0; i < nade.size(); i++) {
 					Grenade b = nade.get(i);
-					b.getStand().setVelocity(KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(), b.getTick() / 2));
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
+					if (b.getTick() % 3 == 0) {
+						if (b.getTick() / 3.0 > 20) {
+							Location mid = stand.getEyeLocation();
+							ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_HUGE, mid, 1);
+							SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade", mid);
+							stand.remove();
+							nade.remove(i);
+						} else {
+							Vector v = KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(), b.getTick() / 3.0);
+							standn.motX = v.getX();
+							standn.motY = v.getY();
+							standn.motZ = v.getZ();
+						}
+					}
 				}
 			}
 		}, 0, 1);

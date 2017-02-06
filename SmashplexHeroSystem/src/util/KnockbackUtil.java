@@ -29,13 +29,13 @@ public class KnockbackUtil {
 		double yp = Math.cos(pitch);
 		double iy = 0.2 + yp * 1.8;
 		if (tick == 0) {
-			return new Vector(ixz * x, iy / 0.98 + 0.08, ixz * z);
+			return new Vector(ixz * x, iy, ixz * z);
 		} else if (tick == 1) {
 			double firstxz = 0.018 - Math.abs(yp) * 0.018;
 			double firsty = 0.052 + yp * 0.018;
 			double remainingy = iy - firsty;
 			double remainingxz = ixz - firstxz;
-			return new Vector(remainingxz * x, remainingy / 0.98 + 0.08, remainingxz * z);
+			return new Vector(remainingxz * x, remainingy, remainingxz * z);
 		} else {
 			double firstxz = 0.018 - Math.abs(yp) * 0.018;
 			double numberxz = 0.05455 - Math.abs(yp) * 0.05455;
@@ -47,7 +47,7 @@ public class KnockbackUtil {
 				remainingy -= numbery * Math.pow(0.9703, i);
 				remainingxz -= numberxz * Math.pow(0.9703, i);
 			}
-			return new Vector(remainingxz * x, remainingy / 0.98 + 0.08, remainingxz * z);
+			return new Vector(remainingxz * x, remainingy, remainingxz * z);
 		}
 	}
 

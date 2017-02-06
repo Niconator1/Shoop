@@ -1,26 +1,25 @@
 package abilities;
 
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 
 public class Grenade {
-	private ArmorStand a;
+	private ArmorStandM a;
 	private float pitch;
 	private float yaw;
 	private Player shoop;
 	private double damage = 10.0;
 	private Location start;
 
-	public Grenade(ArmorStand f, float pitch, float yaw, Player p, Location l) {
-		this.a = f;
+	public Grenade(ArmorStandM fn, float pitch, float yaw, Player p, Location l) {
+		this.a = fn;
 		this.pitch = pitch;
 		this.yaw = yaw;
 		this.shoop = p;
 		this.start = l;
 	}
 
-	public ArmorStand getStand() {
+	public ArmorStandM getStand() {
 		return a;
 	}
 
@@ -45,6 +44,6 @@ public class Grenade {
 	}
 
 	public int getTick() {
-		return a.getTicksLived();
+		return a.ticksLived;
 	}
 }

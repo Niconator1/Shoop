@@ -69,7 +69,9 @@ public class EventManager implements Listener {
 						fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 						fn.noclip = true;
 						CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
-						an.setVelocity(v);
+						fn.motX = v.getX();
+						fn.motY = v.getY();
+						fn.motZ = v.getZ();
 						an.setVisible(false);
 						an.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
 						an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));

@@ -9,9 +9,9 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,12 +19,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.Grenade;
 import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.WorldServer;
 import util.ParticleUtil;
 import util.SoundUtil;
 
@@ -293,17 +295,20 @@ public class Skullfire extends Hero {
 		Location l = p.getLocation();
 		Vector v = new Vector(1.8 * x, 0.2 + y * 1.8, 1.8 * z);
 		Vector vm = new Vector(v.getX(), v.getY() / 0.98 + 0.08, v.getZ());
-		ArmorStand f = (ArmorStand) p.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
-		CraftArmorStand a = (CraftArmorStand) f;
-		a.getHandle().noclip = true;
-		f.setVisible(false);
-		f.setHelmet(new ItemStack(Material.PUMPKIN, 1));
-		f.setHeadPose(f.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-		f.setVelocity(vm);
+		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
+		ArmorStandM fn = new ArmorStandM(s);
+		fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+		fn.noclip = true;
+		s.addEntity(fn);
+		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
+		an.setVelocity(vm);
+		an.setVisible(false);
+		an.setHelmet(new ItemStack(Material.PUMPKIN, 1));
+		an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
 		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", p.getLocation());
 		Cooldown c = new Cooldown(p, 1, 200);
 		Smashplex.cooldown.add(c);
-		Grenade nade = new Grenade(f, p.getLocation().getPitch(), p.getLocation().getYaw(), p, l);
+		Grenade nade = new Grenade(fn, p.getLocation().getPitch(), p.getLocation().getYaw(), p, l);
 		Smashplex.nade.add(nade);
 	}
 
