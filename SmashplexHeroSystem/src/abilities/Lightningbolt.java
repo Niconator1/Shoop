@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Lightningbolt {
-	private ArmorStand a;
+	private ArmorStandM a;
 	private Vector v;
 	private Player shoop;
 	private double damage = 1.5;
@@ -18,7 +17,7 @@ public class Lightningbolt {
 	private boolean isPassive;
 	private ArrayList<UUID> hitted = new ArrayList<UUID>();
 
-	public Lightningbolt(ArmorStand f, Vector v, Player shoop, Location start, boolean passive) {
+	public Lightningbolt(ArmorStandM f, Vector v, Player shoop, Location start, boolean passive) {
 		this.a = f;
 		this.v = v;
 		this.shoop = shoop;
@@ -26,7 +25,7 @@ public class Lightningbolt {
 		this.isPassive = passive;
 	}
 
-	public ArmorStand getStand() {
+	public ArmorStandM getStand() {
 		return a;
 	}
 

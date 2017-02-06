@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.Vector;
 
+import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
@@ -33,7 +35,7 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<ShoopLazor> lazor = new ArrayList<ShoopLazor>();
 	public static ArrayList<Grenade> nade = new ArrayList<Grenade>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
-	public static boolean smash = false;
+	public static boolean smash = true;
 	public static double knockback = 0.125;
 	public static Objective obj;
 
@@ -64,7 +66,7 @@ public class Smashplex extends JavaPlugin {
 			}
 		}
 		for (int i = 0; i < bolt.size(); i++) {
-			bolt.get(i).getStand().remove();
+			bolt.get(i).getStand().die();
 		}
 		for (int i = 0; i < nade.size(); i++) {
 			nade.get(i).getStand().remove();
@@ -336,14 +338,11 @@ public class Smashplex extends JavaPlugin {
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
-				// Projectile Gravitation disabling
-				for (int i = 0; i < bolt.size(); i++) {
-					bolt.get(i).getStand().setVelocity(bolt.get(i).getVector());
-				}
 				// Block collision check
 				for (int i = 0; i < bolt.size(); i++) {
 					Lightningbolt b = bolt.get(i);
-					ArmorStand stand = b.getStand();
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
 					Location mid = stand.getEyeLocation();
 					double bonuslengthf = 0.75;
 					if (b.isPassive()) {
@@ -358,7 +357,7 @@ public class Smashplex extends JavaPlugin {
 							if (c.getType() == Material.STEP) {
 								if (midm.getY() % midm.getBlockY() < 0.5) {
 									if (b.isPassive()) {
-										b.getStand().setPassenger(null);
+										stand.setPassenger(null);
 									}
 									stand.remove();
 									bolt.remove(i);
@@ -366,7 +365,7 @@ public class Smashplex extends JavaPlugin {
 								}
 							} else {
 								if (b.isPassive()) {
-									b.getStand().setPassenger(null);
+									stand.setPassenger(null);
 								}
 								stand.remove();
 								bolt.remove(i);
@@ -385,7 +384,8 @@ public class Smashplex extends JavaPlugin {
 				// Hit registration
 				for (int i = 0; i < bolt.size(); i++) {
 					Lightningbolt b = bolt.get(i);
-					ArmorStand stand = b.getStand();
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
 					Location mid = stand.getEyeLocation();
 					// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
 					double bonusxz = 1.3; // 0.35 player model width/length +0.4
@@ -421,7 +421,7 @@ public class Smashplex extends JavaPlugin {
 																		spt.getMasxHP() - spt.getHP());
 																Vector ret = KnockbackUtil
 																		.getFinalVelocity(target.getVelocity(), kb);
-																b.getShoop().sendMessage(ret.getY() + " "+kb.getY());
+																b.getShoop().sendMessage(ret.getY() + " " + kb.getY());
 																target.setVelocity(ret);
 															}
 														}
@@ -459,13 +459,13 @@ public class Smashplex extends JavaPlugin {
 					}
 					if (b.isPassive()) {
 						if (mid.distance(b.start()) >= 55) {
-							b.getStand().setPassenger(null);
-							b.getStand().remove();
+							stand.setPassenger(null);
+							stand.remove();
 							bolt.remove(i);
 						}
 					} else {
 						if (mid.distance(b.start()) > 120) {
-							b.getStand().remove();
+							stand.remove();
 							bolt.remove(i);
 						}
 					}
