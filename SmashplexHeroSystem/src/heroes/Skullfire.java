@@ -27,6 +27,7 @@ import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.WorldServer;
+import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
 
@@ -105,15 +106,15 @@ public class Skullfire extends Hero {
 			im.setDisplayName(ChatColor.GREEN + "Grenade " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		}
 		ArrayList<String> lore = new ArrayList<String>();
-        lore.add("");
-        lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [2]" + ChatColor.GRAY + " to throw a");
-        lore.add(ChatColor.GRAY + "grenade that will explode");
-        lore.add(ChatColor.GRAY + "instantly upon impact with a");
-        lore.add(ChatColor.GRAY + "player or a block.");
-        im.setLore(lore);
-        is.setItemMeta(im);
-        return is;
-    }
+		lore.add("");
+		lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [2]" + ChatColor.GRAY + " to throw a");
+		lore.add(ChatColor.GRAY + "grenade that will explode");
+		lore.add(ChatColor.GRAY + "instantly upon impact with a");
+		lore.add(ChatColor.GRAY + "player or a block.");
+		im.setLore(lore);
+		is.setItemMeta(im);
+		return is;
+	}
 
 	@Override
 	public ItemStack getSmash(double loaded) {
@@ -245,7 +246,7 @@ public class Skullfire extends Hero {
 														reduction = 3;
 													}
 													spt.damage(4 - reduction);
-													//TODO: KB
+													// TODO: KB
 													didhit = true;
 													sp.setFlameJump(true);
 													p.setAllowFlight(true);
@@ -294,17 +295,19 @@ public class Skullfire extends Hero {
 		double z = Math.sin(pitch) * Math.sin(yaw);
 		Location l = p.getLocation();
 		Vector v = new Vector(1.8 * x, 0.2 + y * 1.8, 1.8 * z);
-		Vector vm = new Vector(v.getX(), v.getY() / 0.98 + 0.08, v.getZ());
 		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
 		ArmorStandM fn = new ArmorStandM(s);
 		fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 		fn.noclip = true;
+		fn.motX = v.getX();
+		fn.motY = v.getY();
+		fn.motZ = v.getZ();
 		s.addEntity(fn);
 		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
-		an.setVelocity(vm);
 		an.setVisible(false);
 		an.setHelmet(new ItemStack(Material.PUMPKIN, 1));
 		an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+		KnockbackUtil.changeEntityTrack(fn);
 		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", p.getLocation());
 		Cooldown c = new Cooldown(p, 1, 200);
 		Smashplex.cooldown.add(c);

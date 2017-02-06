@@ -1,12 +1,16 @@
 package util;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import net.minecraft.server.v1_8_R3.EntityTracker;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
+import net.minecraft.server.v1_8_R3.WorldServer;
 
 public class KnockbackUtil {
 
@@ -19,7 +23,7 @@ public class KnockbackUtil {
 
 	}
 
-	public static Vector getNadeVelocity(double angley, double anglexz, double tick) {
+	public static Vector getNadeVelocity(double angley, double anglexz, int tick) {
 		double pitch = ((angley + 90.0) * Math.PI) / 180.0;
 		double yaw = ((anglexz + 90.0) * Math.PI) / 180.0;
 		double x = Math.cos(yaw);
@@ -94,6 +98,15 @@ public class KnockbackUtil {
 				return new Vector(base.getX(), base.getY() + kb.getY(), base.getZ());
 			}
 		}
+	}
+
+	public static void changeEntityTrack(net.minecraft.server.v1_8_R3.Entity fn) {
+		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
+		WorldServer s = ((CraftWorld) an.getWorld()).getHandle();
+		EntityTracker et = s.getTracker();
+		et.untrackEntity(fn);
+		et.addEntity(fn, 160, 1, true); // this.addEntityToTracker(p_72786_1_,
+										// 160, 3, true);
 	}
 
 }

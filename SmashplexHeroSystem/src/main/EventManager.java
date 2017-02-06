@@ -121,7 +121,7 @@ public class EventManager implements Listener {
 						double y = Math.cos(pitch);
 						double z = Math.sin(pitch) * Math.sin(yaw);
 						Vector v = new Vector(x, y, z).normalize().multiply(0.77);
-						p.setVelocity(new Vector(v.getX(), 0.77, v.getZ()));
+						p.setVelocity(new Vector(v.getX(), 0.865, v.getZ()));
 						event.setCancelled(true);
 						sp.setJumps(sp.getRemainingJumps() - 1);
 						SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation());
@@ -129,7 +129,7 @@ public class EventManager implements Listener {
 							new FlameJump(p.getLocation()).doJump();
 						} else {
 							for (int i = 0; i < 20; i++) {
-								double radius = 1.37;
+								double radius = 1.0;
 								double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
 								double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
 								if (sp.getSelectedHero() == 1) {

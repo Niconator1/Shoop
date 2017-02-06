@@ -516,15 +516,16 @@ public class Smashplex extends JavaPlugin {
 					Grenade b = nade.get(i);
 					ArmorStandM standn = b.getStand();
 					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
-					if (b.getTick() % 3 == 0) {
-						if (b.getTick() / 3.0 > 20) {
+					if (stand.getTicksLived() % 3 == 1) {
+						if (b.getTick() / 3.0 > 20.0) {
 							Location mid = stand.getEyeLocation();
 							ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_HUGE, mid, 1);
 							SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade", mid);
 							stand.remove();
 							nade.remove(i);
 						} else {
-							Vector v = KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(), b.getTick() / 3.0);
+							Vector v = KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(),
+									(int) (b.getTick() / 3.0 + 1.0));
 							standn.motX = v.getX();
 							standn.motY = v.getY();
 							standn.motZ = v.getZ();
