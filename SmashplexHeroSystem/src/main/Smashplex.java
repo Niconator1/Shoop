@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,9 +14,13 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import abilities.ArmorStandM;
@@ -23,6 +28,7 @@ import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import heroes.Shoop;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import util.KnockbackUtil;
 import util.ParticleUtil;
@@ -35,9 +41,11 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<ShoopLazor> lazor = new ArrayList<ShoopLazor>();
 	public static ArrayList<Grenade> nade = new ArrayList<Grenade>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
+	public static ArrayList<NPC> npcs = new ArrayList<NPC>();
 	public static boolean smash = true;
 	public static double knockback = 0.125;
 	public static Objective obj;
+	public static Team team;
 
 	public void onEnable() {
 		this.getLogger().info("Smashplex enabled");
@@ -45,10 +53,44 @@ public class Smashplex extends JavaPlugin {
 		loopsSmash();
 		loopsSkullfire();
 		loopsShoop();
+		registerLobbyNPCs();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			SmashPlayer sp = new SmashPlayer(p, 100);
 			Smashplex.players.add(sp);
+			for (int i = 0; i < npcs.size(); i++) {
+				NPC n = npcs.get(i);
+				n.spawnGlobal();
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+						new Runnable() {
+							public void run() {
+								n.rmvFromTablist();
+							}
+						}, 100);
+			}
 		}
+	}
+
+	private void registerLobbyNPCs() {
+		if (team == null) {
+			if (Bukkit.getServer().getScoreboardManager().getMainScoreboard().getTeam("-1993870687") != null) {
+				team = Bukkit.getServer().getScoreboardManager().getMainScoreboard().getTeam("-1993870687");
+			} else {
+				team = Bukkit.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("-1993870687");
+			}
+			team.setNameTagVisibility(NameTagVisibility.NEVER);
+		}
+		NPC shoop = new NPC("i13u1i3u12i3u1",
+				new Location(Bukkit.getWorld("lobby"), 839.5, 39.5, 62.5, 82.96875f, 7.03125f), 82.96875f,
+				"eyJ0aW1lc3RhbXAiOjE0NDMyMzE4ODgzNDksInByb2ZpbGVJZCI6ImFhZDIzYTUwZWVkODQ3MTA5OWNmNjRiZThmZjM0ZWY0IiwicHJvZmlsZU5hbWUiOiIxUm9ndWUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2UwMjE2MTJlMjEwNDZkNDY4OGIyMjhjYjM3MDJiYjZhZWM3YTA4Yjc4YjBmNTYwMTljMDRmYWUyYWQyOTQyZCJ9fX0=",
+				"yRVtcYcMOKmDtUkY0c1ruzkJQVswrCExRrG8He5qKUltUT1RI+CMlhjovdEfxfwXRXWQz9BTmfrVlhEwBu7NIfWfimj8twotmGgcJ4ZLSGlkyc/VMwrIMUKzZowvIObQqEWenBQYW3uSfYKFStyi6jCzNOmY4fkCc3VVPBGKKdXOVWo9vGVg63tUjLJZlBSL9r0Cr6IUn7lAQg7cGwGxyikh6/B6tCrpr8/ssJJWJnyDw/rcwnbALJfZVvxAEipA3qA47u3FUntN0CNQIzdVi/y+nNRH+jmyDmV5CSDGELCODrXF1ll/R5gYKn3ZJuSBuY6PjdvpDBr9EeKhD7EFNjTrMqIUoWu+KX6hzwA8DVK2EPn4ZXk31siHQz1L6vd37Y8s8V5fqYj0293frhJ3aiOoUhH5tmfcpV0k7Vdpp2RQVdJk+cHO3t0I6vvroNKoD+pbk8FqA1BxLH4oM8fX4J6Dfk0jFTGSDFdoIp2As8q34ZZrZoTSOf36Hm8tAmXNi0cqxANwQ5zyA9467MDLncTcCWn1NsU1W7KPBBY7mQf4VOhi2zFYKdB2rYMbxbbQ2dGWdUcZFqPmj2DLx/k0HkNiEVOZyxnvuKWydA+L+T+36zHFbs3mo5P414/yI/Zwwxx0xRhE1FIorqj2OphSkmMS4wBzLt96tJjAsaV8af8=");
+		Shoop npc = new Shoop();
+		team.addEntry("i13u1i3u12i3u1");
+		shoop.setItemStack(0, npc.getPrimary(0));
+		shoop.setItemStack(1, npc.getBoots());
+		shoop.setItemStack(2, npc.getLeggings());
+		shoop.setItemStack(3, npc.getChestplate());
+		shoop.setItemStack(4, npc.getHelmet());
+		npcs.add(shoop);
 	}
 
 	public void onDisable() {
@@ -73,6 +115,10 @@ public class Smashplex extends JavaPlugin {
 		}
 		for (int i = 0; i < lazor.size(); i++) {
 			lazor.get(i).finish();
+		}
+		for (int i = 0; i < npcs.size(); i++) {
+			NPC n = npcs.get(i);
+			n.destroyGlobal();
 		}
 	}
 
@@ -114,6 +160,35 @@ public class Smashplex extends JavaPlugin {
 				}
 			} else {
 				sender.sendMessage("You don't have the permission to do this command");
+			}
+		} else if (cmd.getName().equalsIgnoreCase("armor")) {
+			if (sender instanceof Player) {
+				Player p = (Player) sender;
+				if (sender.hasPermission("smash.util")) {
+					if (args.length > 2) {
+						try {
+							int red = Integer.parseInt(args[0]);
+							int green = Integer.parseInt(args[1]);
+							int blue = Integer.parseInt(args[2]);
+							ItemStack is = new ItemStack(Material.LEATHER_CHESTPLATE);
+							Color c = Color.fromBGR(blue, green, red);
+							is = Hero.addColor(is, c);
+							ItemMeta im = is.getItemMeta();
+							im.setDisplayName(ChatColor.AQUA + "Color: " + c.asRGB());
+							is.setItemMeta(im);
+							p.getInventory().addItem(is);
+							return true;
+						} catch (NumberFormatException e) {
+							sender.sendMessage("Not a valid number");
+						}
+					} else {
+						sender.sendMessage("Usage: /armor <red> <green> <blue>");
+					}
+				} else {
+					sender.sendMessage("You don't have the permission to do this command");
+				}
+			} else {
+				sender.sendMessage("This command can only be used as a player");
 			}
 		} else if (cmd.getName().equalsIgnoreCase("removehero")) {
 			if (sender instanceof Player) {
@@ -516,8 +591,8 @@ public class Smashplex extends JavaPlugin {
 					Grenade b = nade.get(i);
 					ArmorStandM standn = b.getStand();
 					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
-					if (stand.getTicksLived() % 3 == 1) {
-						if (b.getTick() / 3.0 > 20.0) {
+					if (standn.ticksLived % 3 == 1) {
+						if (standn.ticksLived / 3.0 > 21.0) {
 							Location mid = stand.getEyeLocation();
 							ParticleUtil.sendPublicParticlePacket(EnumParticle.EXPLOSION_HUGE, mid, 1);
 							SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade", mid);
@@ -525,7 +600,7 @@ public class Smashplex extends JavaPlugin {
 							nade.remove(i);
 						} else {
 							Vector v = KnockbackUtil.getNadeVelocity(b.getPitch(), b.getYaw(),
-									(int) (b.getTick() / 3.0 + 1.0));
+									(int) (standn.ticksLived / 3.0 + 1.0));
 							standn.motX = v.getX();
 							standn.motY = v.getY();
 							standn.motZ = v.getZ();

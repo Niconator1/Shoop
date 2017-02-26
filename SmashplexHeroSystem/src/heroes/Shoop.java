@@ -11,9 +11,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
@@ -129,6 +131,8 @@ public class Shoop extends Hero {
 		if (loaded >= 1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
 			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+			im.addEnchant(Enchantment.OXYGEN, 1, false);
+			im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add(ChatColor.GRAY + "Smash Ability");
@@ -155,7 +159,7 @@ public class Shoop extends Hero {
 		Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
 		l.add(vo.getX(), -0.45, vo.getZ());
 		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
-		ArmorStandM fn = new ArmorStandM(s);
+		ArmorStandM fn = new ArmorStandM(s,0);
 		fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 		fn.noclip = true;
 		s.addEntity(fn);

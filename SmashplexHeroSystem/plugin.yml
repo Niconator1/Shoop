@@ -18,6 +18,8 @@ commands:
         description: Removes all parts of the current selected hero
     setkb:
         description: Sets the knockback value
+    armor:
+        description: Create an color test armor
 permissions:
     smash.admin:
         default: false
@@ -28,4 +30,7 @@ permissions:
     smash.skull:
         default: false
         description: All rights for skullfire
+    smash.util:
+        default: false
+        description: All rights for utility commands
         

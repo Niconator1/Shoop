@@ -42,8 +42,4 @@ public class Grenade {
 	public float getYaw() {
 		return yaw;
 	}
-
-	public int getTick() {
-		return a.ticksLived;
-	}
 }

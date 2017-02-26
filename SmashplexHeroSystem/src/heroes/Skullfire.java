@@ -11,9 +11,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -124,6 +126,8 @@ public class Skullfire extends Hero {
 		if (loaded >= 1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
 			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+			im.addEnchant(Enchantment.OXYGEN, 1, false);
+			im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add(ChatColor.GRAY + "Smash Ability");
@@ -296,18 +300,18 @@ public class Skullfire extends Hero {
 		Location l = p.getLocation();
 		Vector v = new Vector(1.8 * x, 0.2 + y * 1.8, 1.8 * z);
 		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
-		ArmorStandM fn = new ArmorStandM(s);
-		fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+		ArmorStandM fn = new ArmorStandM(s, 4);
+		fn.setLocation(l.getX(), l.getY() + 0.52, l.getZ(), l.getYaw(), l.getPitch());
 		fn.noclip = true;
 		fn.motX = v.getX();
 		fn.motY = v.getY();
 		fn.motZ = v.getZ();
 		s.addEntity(fn);
+		KnockbackUtil.changeEntityTrack(fn, 2);
 		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
 		an.setVisible(false);
 		an.setHelmet(new ItemStack(Material.PUMPKIN, 1));
 		an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-		KnockbackUtil.changeEntityTrack(fn);
 		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", p.getLocation());
 		Cooldown c = new Cooldown(p, 1, 200);
 		Smashplex.cooldown.add(c);

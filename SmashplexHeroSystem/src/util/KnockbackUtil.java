@@ -1,5 +1,9 @@
 package util;
 
+import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
@@ -8,7 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import net.minecraft.server.v1_8_R3.EntityTracker;
+import net.minecraft.server.v1_8_R3.EntityTrackerEntry;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityVelocity;
 import net.minecraft.server.v1_8_R3.WorldServer;
 
@@ -100,13 +104,26 @@ public class KnockbackUtil {
 		}
 	}
 
-	public static void changeEntityTrack(net.minecraft.server.v1_8_R3.Entity fn) {
+	public static void changeEntityTrack(net.minecraft.server.v1_8_R3.Entity fn, int number) {
 		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
 		WorldServer s = ((CraftWorld) an.getWorld()).getHandle();
-		EntityTracker et = s.getTracker();
-		et.untrackEntity(fn);
-		et.addEntity(fn, 160, 1, true); // this.addEntityToTracker(p_72786_1_,
-										// 160, 3, true);
+		Object et = s.getTracker();
+		Field field;
+		try {
+			field = et.getClass().getDeclaredField("c");
+			field.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			Set<EntityTrackerEntry> set = (Set<EntityTrackerEntry>) field.get(et);
+			Iterator<EntityTrackerEntry> iterator = set.iterator();
+			while (iterator.hasNext()) {
+				EntityTrackerEntry entitytrackerentry = (EntityTrackerEntry) iterator.next();
+				if (entitytrackerentry.tracker.getUniqueID() == fn.getUniqueID()) {
+					entitytrackerentry.m=number;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

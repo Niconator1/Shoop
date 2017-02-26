@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import abilities.ArmorStandM;
@@ -41,6 +42,16 @@ public class EventManager implements Listener {
 		Player p = event.getPlayer();
 		SmashPlayer sp = new SmashPlayer(p, 100);
 		Smashplex.players.add(sp);
+		for (int i = 0; i < Smashplex.npcs.size(); i++) {
+			NPC n = Smashplex.npcs.get(i);
+			n.spawn(p);
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+					new Runnable() {
+						public void run() {
+							n.rmvFromTablist(p);
+						}
+					}, 100);
+		}
 	}
 
 	@EventHandler
@@ -65,7 +76,7 @@ public class EventManager implements Listener {
 						l.add(vo.getX(), -0.3, vo.getZ());
 						SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
 						WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
-						ArmorStandM fn = new ArmorStandM(s);
+						ArmorStandM fn = new ArmorStandM(s, 0);
 						fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 						fn.noclip = true;
 						CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
@@ -96,14 +107,18 @@ public class EventManager implements Listener {
 		if (sp != null) {
 			if (sp.getSelectedHero() != -1) {
 				sp.removeHeroItems();
-				for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-					Cooldown c = Smashplex.cooldown.get(i);
-					if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-						Smashplex.cooldown.remove(i);
-					}
-				}
 			}
 			Smashplex.players.remove(sp);
+		}
+		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+			Cooldown c = Smashplex.cooldown.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				Smashplex.cooldown.remove(i);
+			}
+		}
+		for (int i = 0; i < Smashplex.npcs.size(); i++) {
+			NPC n = Smashplex.npcs.get(i);
+			n.destroy(p);
 		}
 	}
 
@@ -120,7 +135,7 @@ public class EventManager implements Listener {
 						double x = Math.sin(pitch) * Math.cos(yaw);
 						double y = Math.cos(pitch);
 						double z = Math.sin(pitch) * Math.sin(yaw);
-						Vector v = new Vector(x, y, z).normalize().multiply(0.77);
+						Vector v = new Vector(x, y, z).normalize().multiply(0.787);
 						p.setVelocity(new Vector(v.getX(), 0.865, v.getZ()));
 						event.setCancelled(true);
 						sp.setJumps(sp.getRemainingJumps() - 1);
