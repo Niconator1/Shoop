@@ -20,6 +20,8 @@ commands:
         description: Sets the knockback value
     armor:
         description: Create an color test armor
+    botmobile:
+        description: Prepare for the awesome Botmobile
 permissions:
     smash.admin:
         default: false

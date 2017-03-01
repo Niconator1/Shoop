@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
@@ -24,12 +25,14 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import abilities.ArmorStandM;
+import abilities.Botmobile;
 import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
 import heroes.Shoop;
 import net.minecraft.server.v1_8_R3.EnumParticle;
+import net.minecraft.server.v1_8_R3.WorldServer;
 import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
@@ -42,6 +45,7 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<Grenade> nade = new ArrayList<Grenade>();
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
 	public static ArrayList<NPC> npcs = new ArrayList<NPC>();
+	public static ArrayList<Botmobile> bm = new ArrayList<Botmobile>();
 	public static boolean smash = true;
 	public static double knockback = 0.125;
 	public static Objective obj;
@@ -53,6 +57,7 @@ public class Smashplex extends JavaPlugin {
 		loopsSmash();
 		loopsSkullfire();
 		loopsShoop();
+		loopsTest();
 		registerLobbyNPCs();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			SmashPlayer sp = new SmashPlayer(p, 100);
@@ -109,6 +114,9 @@ public class Smashplex extends JavaPlugin {
 		}
 		for (int i = 0; i < bolt.size(); i++) {
 			bolt.get(i).getStand().die();
+		}
+		for (int i = 0; i < bm.size(); i++) {
+			bm.get(i).getStand().die();
 		}
 		for (int i = 0; i < nade.size(); i++) {
 			nade.get(i).getStand().die();
@@ -206,6 +214,39 @@ public class Smashplex extends JavaPlugin {
 					}
 					sp.setSelectedHero(-1);
 					sender.sendMessage("Your selected hero was reseted");
+				} else {
+					sender.sendMessage("Error #0 please contact NiconatorTM");
+				}
+			} else {
+				sender.sendMessage("This command can only be used as a player");
+			}
+		} else if (cmd.getName().equalsIgnoreCase("botmobile")) {
+			if (sender instanceof Player) {
+				Player p = (Player) sender;
+				SmashPlayer sp = getSmashPlayer(p);
+				if (sp != null) {
+					double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+					double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+					double x = Math.sin(pitch) * Math.cos(yaw);
+					double y = Math.cos(pitch);
+					double z = Math.sin(pitch) * Math.sin(yaw);
+					Vector v = new Vector(x, y, z).multiply(0.911625);
+					Location l = p.getEyeLocation();
+					SoundUtil.sendPublicSoundPacket("Botmun.crystal", p.getLocation());
+					WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
+					ArmorStandM fn = new ArmorStandM(s, 0);
+					fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+					CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
+					fn.motX = v.getX();
+					fn.motY = v.getY();
+					fn.motZ = v.getZ();
+					an.setVisible(false);
+					an.setHelmet(new ItemStack(Material.MYCEL));
+					s.addEntity(fn);
+					an.setPassenger(p);
+					p.getLocation().setPitch(0);
+					Botmobile botmobile = new Botmobile(fn, p);
+					Smashplex.bm.add(botmobile);
 				} else {
 					sender.sendMessage("Error #0 please contact NiconatorTM");
 				}
@@ -395,6 +436,52 @@ public class Smashplex extends JavaPlugin {
 			}
 		}, 0, 1);
 
+	}
+
+	private void loopsTest() {
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@Override
+			public void run() {
+				// Velocity change
+				for (int i = 0; i < bm.size(); i++) {
+					Botmobile b = bm.get(i);
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
+					Player p = b.getPlayer();
+					double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+					double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+					double x = Math.sin(pitch) * Math.cos(yaw);
+					double y = Math.cos(pitch);
+					double z = Math.sin(pitch) * Math.sin(yaw);
+					Vector v = new Vector(x, y, z).multiply(0.911625);
+					standn.yaw = p.getLocation().getYaw();
+					standn.motX = v.getX();
+					standn.motY = v.getY();
+					standn.motZ = v.getZ();
+					stand.setHeadPose(stand.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+					Location smoke = stand.getEyeLocation().add(0, 0.2, 0).add(v.normalize().multiply(-2.0));
+					ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE, smoke, 1);
+					// SoundUtil.sendPublicSoundPacket("Skullfire.explodegrenade",
+					// mid);
+				}
+				// Block collision check
+				for (int i = 0; i < bm.size(); i++) {
+					Botmobile b = bm.get(i);
+					ArmorStandM standn = b.getStand();
+					CraftArmorStand stand = (CraftArmorStand) standn.getBukkitEntity();
+					if (stand.getPassenger() == null) {
+						if (stand.getTicksLived() < 5) {
+							if (b.getPlayer().isOnline()) {
+								stand.setPassenger(b.getPlayer());
+							}
+						} else {
+							standn.die();
+							bm.remove(i);
+						}
+					}
+				}
+			}
+		}, 0, 1);
 	}
 
 	private void loopsShoop() {
