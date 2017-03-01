@@ -50,7 +50,7 @@ public class Smashplex extends JavaPlugin {
 			Smashplex.players.add(sp);
 			for (int i = 0; i < npcs.size(); i++) {
 				NPC n = npcs.get(i);
-				n.spawnGlobal();
+				n.spawnGlobal(false);
 				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
 						new Runnable() {
 							public void run() {
@@ -113,6 +113,12 @@ public class Smashplex extends JavaPlugin {
 		shoop.setItemStack(2, npc.getLeggings());
 		shoop.setItemStack(3, npc.getChestplate());
 		shoop.setItemStack(4, npc.getHelmet());
+		npc.setMasterSkin(true);
+		shoop.setMasterItemStack(0, npc.getPrimary(0));
+		shoop.setMasterItemStack(1, npc.getBoots());
+		shoop.setMasterItemStack(2, npc.getLeggings());
+		shoop.setMasterItemStack(3, npc.getChestplate());
+		shoop.setMasterItemStack(4, npc.getHelmet());
 		npcs.add(shoop);
 	}
 

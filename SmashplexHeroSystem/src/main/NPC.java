@@ -32,6 +32,7 @@ public class NPC {
 	private int entityID;
 	private int nameID;
 	private ItemStack[] inventory = new ItemStack[5];
+	private ItemStack[] msinventory = new ItemStack[5];
 	private Location location;
 	private GameProfile gameprofile;
 	private float headrot;
@@ -59,7 +60,13 @@ public class NPC {
 		}
 	}
 
-	public void spawnGlobal() {
+	public void setMasterItemStack(int slot, org.bukkit.inventory.ItemStack is) {
+		if (slot < msinventory.length && slot >= 0) {
+			msinventory[slot] = CraftItemStack.asNMSCopy(is);
+		}
+	}
+
+	public void spawnGlobal(boolean ms) {
 		changeSkin(value, signature);
 		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
 		setValue(packet, "a", entityID);
@@ -77,10 +84,20 @@ public class NPC {
 		setValue(packet, "i", w);
 		addToTablist();
 		sendPacket(packet);
-		for (int i = 0; i < inventory.length; i++) {
-			if (inventory[i] != null) {
-				PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
-				sendPacket(packet2);
+		if (ms) {
+			for (int i = 0; i < msinventory.length; i++) {
+				if (msinventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
+							msinventory[i]);
+					sendPacket(packet2);
+				}
+			}
+		} else {
+			for (int i = 0; i < inventory.length; i++) {
+				if (inventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
+					sendPacket(packet2);
+				}
 			}
 		}
 		PacketPlayOutEntityHeadRotation packet3 = new PacketPlayOutEntityHeadRotation();
@@ -105,7 +122,7 @@ public class NPC {
 		sendPacket(packet4);
 	}
 
-	public void spawn(Player p) {
+	public void spawn(Player p, boolean ms) {
 		changeSkin(value, signature);
 		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
 		setValue(packet, "a", entityID);
@@ -123,10 +140,20 @@ public class NPC {
 		setValue(packet, "i", w);
 		addToTablist(p);
 		sendPacket(packet, p);
-		for (int i = 0; i < inventory.length; i++) {
-			if (inventory[i] != null) {
-				PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
-				sendPacket(packet2, p);
+		if (ms) {
+			for (int i = 0; i < msinventory.length; i++) {
+				if (msinventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
+							msinventory[i]);
+					sendPacket(packet2);
+				}
+			}
+		} else {
+			for (int i = 0; i < inventory.length; i++) {
+				if (inventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
+					sendPacket(packet2);
+				}
 			}
 		}
 		PacketPlayOutEntityHeadRotation packet3 = new PacketPlayOutEntityHeadRotation();

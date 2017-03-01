@@ -48,6 +48,10 @@ public abstract class Hero {
 		return lastshottime;
 	}
 
+	public void setMasterSkin(boolean is) {
+		ms = is;
+	}
+
 	public void setLastDmgSound(long i) {
 		lastdmgsound = i;
 	}

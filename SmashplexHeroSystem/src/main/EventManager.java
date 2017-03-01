@@ -45,7 +45,7 @@ public class EventManager implements Listener {
 		Smashplex.players.add(sp);
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
-			n.spawn(p);
+			n.spawn(p, false);
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
 					new Runnable() {
 						public void run() {
