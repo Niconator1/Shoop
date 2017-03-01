@@ -1,0 +1,38 @@
+name: Smashplex
+version: 0.5
+description: >
+  A community recreation of the game smash heroes to improve balance and test new heroes
+
+author: Niconator1
+main: main.Smashplex
+load: STARTUP
+
+commands:
+    smash:
+        description: Disables/enables the plugin
+    shoop:
+        description: Selects shoop as your hero
+    skullfire:
+        description: Selects skullfire as your hero
+    removehero:
+        description: Removes all parts of the current selected hero
+    setkb:
+        description: Sets the knockback value
+    armor:
+        description: Create an color test armor
+    botmobile:
+        description: Prepare for the awesome Botmobile
+permissions:
+    smash.admin:
+        default: false
+        description: Allows admin control of the plugin
+    smash.shoop:
+        default: false
+        description: All rights for shoop
+    smash.skull:
+        default: false
+        description: All rights for skullfire
+    smash.util:
+        default: false
+        description: All rights for utility commands
+        
