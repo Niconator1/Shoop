@@ -164,8 +164,9 @@ public class EventManager implements Listener {
 
 							}
 						}
-						if (sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() == 1
-								&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() <= 0) {
+						if (sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() != 1
+								|| sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() == 1
+										&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() <= 0) {
 							p.setAllowFlight(false);
 						}
 					}
