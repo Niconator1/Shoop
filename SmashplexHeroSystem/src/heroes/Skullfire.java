@@ -24,7 +24,6 @@ import org.bukkit.util.Vector;
 import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.Grenade;
-import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -32,13 +31,20 @@ import net.minecraft.server.v1_8_R3.WorldServer;
 import util.KnockbackUtil;
 import util.ParticleUtil;
 import util.SoundUtil;
+import util.TextUtil;
 
 public class Skullfire extends Hero {
 
-	private static int smashticks = 2000;
+	private static int smashticks = 1999;
+	private int bullets = 99;
+	private int flamejumps = 0;
 
-	public Skullfire() {
-		super("Skullfire", smashticks);
+	public Skullfire(Player p) {
+		super(p, "Skullfire", smashticks, 1);
+		Cooldown c = new Cooldown(p, 0, -1);
+		Cooldown c2 = new Cooldown(p, 1, -1);
+		TextUtil.sendCooldownMessage(c);
+		Smashplex.cooldown.add(c2);
 	}
 
 	@Override
@@ -143,18 +149,17 @@ public class Skullfire extends Hero {
 	int y = 1;
 
 	@Override
-	public void doPrimary(SmashPlayer sp) {
-		Player p = sp.getPlayer();
-		if (sp.getCharges() > 0 && System.currentTimeMillis() - sp.lastshottime > 200) {
-			if (p.isSneaking()) {
-				if (sp.getCharges() > 1) {
-					doShot(sp);
+	public void doPrimary() {
+		if (bullets > 0 && System.currentTimeMillis() - getLastShotTime() > 200) {
+			if (getPlayer().isSneaking()) {
+				if (bullets > 1) {
+					doShot(false);
 					y = 1;
 					x = Bukkit.getServer().getScheduler()
 							.scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Smashplex.class), new Runnable() {
 								public void run() {
-									if (sp.getCharges() > 0 && y < 3) {
-										doShot(sp);
+									if (bullets > 0 && y < 3) {
+										doShot(false);
 										y++;
 									} else {
 										Bukkit.getServer().getScheduler().cancelTask(x);
@@ -162,23 +167,22 @@ public class Skullfire extends Hero {
 								}
 							}, 4L, 4L);
 				} else {
-					doShot(sp);
+					doShot(true);
 				}
 			} else {
-				doShot(sp);
+				doShot(true);
 			}
 		}
 	}
 
-	private void doShot(SmashPlayer sp) {
-		Player p = sp.getPlayer();
-		double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-		double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+	private void doShot(boolean single) {
+		double pitch = ((getPlayer().getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+		double yaw = ((getPlayer().getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 		double x = Math.sin(pitch) * Math.cos(yaw);
 		double y = Math.cos(pitch);
 		double z = Math.sin(pitch) * Math.sin(yaw);
 		Vector v = new Vector(x, y, z).normalize();
-		Location b = p.getEyeLocation();
+		Location b = getPlayer().getEyeLocation();
 		ArrayList<UUID> hitted = new ArrayList<UUID>();
 		int r = (int) (100.0 * 1.0 / 0.75);
 		SoundUtil.sendPublicSoundPacket("Skullfire.magnumshot", 1f);
@@ -193,21 +197,21 @@ public class Skullfire extends Hero {
 			} else if (c.getType().isSolid()) {
 				break;
 			}
-			if (b.distance(p.getEyeLocation()) >= 1.0) {
+			if (b.distance(getPlayer().getEyeLocation()) >= 1.0) {
 				ParticleUtil.sendPublicParticlePacket(EnumParticle.CRIT, b.getX(), b.getY(), b.getZ(), 0f, 0f, 0f, 0f,
 						0);
 			}
 		}
-		if (sp.getCharges() <= 1) {
-			SoundUtil.sendSoundPacket(p, "melee.reload", p.getLocation());
-			Cooldown c = new Cooldown(p, 0, 40);
+		if (bullets <= 1) {
+			SoundUtil.sendSoundPacket(getPlayer(), "melee.reload", getPlayer().getLocation());
+			Cooldown c = new Cooldown(getPlayer(), 0, 40);
 			Smashplex.cooldown.add(c);
 		} else {
-			p.getInventory().setItem(0, getPrimary(sp.getCharges() - 1));
+			getPlayer().getInventory().setItem(0, getPrimary(bullets - 1));
 		}
-		sp.setCharges(sp.getCharges() - 1);
-		sp.lastshottime = System.currentTimeMillis();
-		b = p.getEyeLocation();
+		bullets -= 1;
+		setLastShotTime(System.currentTimeMillis());
+		b = getPlayer().getEyeLocation();
 		v.normalize().multiply(0.1);
 		// Hitbox is about 3.8(h)x1.0(w)x1.0(l)
 		double bonusxz = 0.7; // 0.35 player model width/length
@@ -225,7 +229,7 @@ public class Skullfire extends Hero {
 			}
 			for (LivingEntity le : b.getWorld().getLivingEntities()) {
 				if (!(le instanceof ArmorStand)) {
-					if (le.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+					if (le.getUniqueId().compareTo(getPlayer().getUniqueId()) != 0) {
 						boolean canhit = true;
 						for (int i = 0; i < hitted.size(); i++) {
 							if (hitted.get(i).compareTo(le.getUniqueId()) == 0) {
@@ -238,22 +242,31 @@ public class Skullfire extends Hero {
 								if (Math.abs(enemy.getZ() - midm.getZ()) <= 0.35 + bonusxz) {
 									double dy = enemy.getY() - midm.getY();
 									if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
-										SoundUtil.sendSoundPacket(p, "random.successful_hit", p.getLocation());
+										SoundUtil.sendSoundPacket(getPlayer(), "random.successful_hit",
+												getPlayer().getLocation());
 										hitted.add(le.getUniqueId());
 										if (le instanceof Player) {
 											Player target = (Player) le;
 											SmashPlayer spt = Smashplex.getSmashPlayer(target);
 											if (spt != null) {
-												if (spt.getSelectedHero() != -1) {
-													int reduction = (int) (enemy.distance(p.getLocation()) / 20.0);
+												if (spt.getSelectedHero() != null) {
+													int reduction = (int) (enemy.distance(getPlayer().getLocation())
+															/ 20.0);
 													if (reduction > 3) {
 														reduction = 3;
 													}
 													spt.damage(4 - reduction);
 													// TODO: KB
 													didhit = true;
-													sp.setFlameJump(true);
-													p.setAllowFlight(true);
+													if (single) {
+														flamejumps = 1;
+													} else {
+														if (flamejumps < 2) {
+															flamejumps++;
+														}
+													}
+													flamejumps++;
+													getPlayer().setAllowFlight(true);
 												}
 											}
 										}
@@ -267,16 +280,16 @@ public class Skullfire extends Hero {
 			}
 		}
 		if (didhit) {
-			if (p.getExp() < 0.6) {
-				p.setExp(p.getExp() + 0.33f);
-				p.setLevel((int) (p.getExp() * 100.0));
+			if (getPlayer().getExp() < 0.6) {
+				getPlayer().setExp(getPlayer().getExp() + 0.33f);
+				getPlayer().setLevel((int) (getPlayer().getExp() * 100.0));
 			} else {
-				p.setExp(0);
-				p.setLevel(0);
-				p.getInventory().setItem(1, sp.getHero().getSecondary(1.0));
+				getPlayer().setExp(0);
+				getPlayer().setLevel(0);
+				getPlayer().getInventory().setItem(1, getSecondary(1.0));
 				for (int i = 0; i < Smashplex.cooldown.size(); i++) {
 					Cooldown c = Smashplex.cooldown.get(i);
-					if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+					if (c.getPlayer().getUniqueId().compareTo(getPlayer().getUniqueId()) == 0) {
 						if (c.getSkill() == 1) {
 							Smashplex.cooldown.remove(i);
 						}
@@ -284,20 +297,19 @@ public class Skullfire extends Hero {
 				}
 			}
 		} else {
-			p.setExp(0);
-			p.setLevel(0);
+			getPlayer().setExp(0);
+			getPlayer().setLevel(0);
 		}
 	}
 
 	@Override
-	public void doSecondary(SmashPlayer sp) {
-		Player p = sp.getPlayer();
-		double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-		double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+	public void doSecondary() {
+		double pitch = ((getPlayer().getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+		double yaw = ((getPlayer().getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 		double x = Math.sin(pitch) * Math.cos(yaw);
 		double y = Math.cos(pitch);
 		double z = Math.sin(pitch) * Math.sin(yaw);
-		Location l = p.getLocation();
+		Location l = getPlayer().getLocation();
 		Vector v = new Vector(1.8 * x, 0.2 + y * 1.8, 1.8 * z);
 		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
 		ArmorStandM fn = new ArmorStandM(s, 4);
@@ -311,16 +323,17 @@ public class Skullfire extends Hero {
 		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
 		an.setVisible(false);
 		an.setHelmet(new ItemStack(Material.PUMPKIN, 1));
-		an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", p.getLocation());
-		Cooldown c = new Cooldown(p, 1, 200);
+		an.setHeadPose(an.getHeadPose().setX(getPlayer().getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+		SoundUtil.sendPublicSoundPacket("Skullfire.grenadethrow", getPlayer().getLocation());
+		Cooldown c = new Cooldown(getPlayer(), 1, 200);
 		Smashplex.cooldown.add(c);
-		Grenade nade = new Grenade(fn, p.getLocation().getPitch(), p.getLocation().getYaw(), p, l);
+		Grenade nade = new Grenade(fn, getPlayer().getLocation().getPitch(), getPlayer().getLocation().getYaw(),
+				getPlayer(), l);
 		Smashplex.nade.add(nade);
 	}
 
 	@Override
-	public void doSmash(SmashPlayer sp) {
+	public void doSmash() {
 	}
 
 	@Override
@@ -336,6 +349,14 @@ public class Skullfire extends Hero {
 	@Override
 	public void doDeathSound() {
 		SoundUtil.sendPublicSoundPacket("Skullfire.smashed", 1f);
+	}
+
+	public int getFlameJumps() {
+		return this.flamejumps;
+	}
+
+	public void setFlameJumps(int i) {
+		flamejumps = i;
 	}
 
 }

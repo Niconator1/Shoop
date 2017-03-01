@@ -24,7 +24,6 @@ import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
-import main.Hero;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -37,9 +36,10 @@ import util.TextUtil;
 public class Shoop extends Hero {
 
 	private static int smashticks = 1999;
+	private int charges = 0;
 
-	public Shoop() {
-		super("Shoop", smashticks);
+	public Shoop(Player p) {
+		super(p, "Shoop", smashticks, 0);
 	}
 
 	@Override
@@ -145,51 +145,48 @@ public class Shoop extends Hero {
 	}
 
 	@Override
-	public void doPrimary(SmashPlayer sp) {
-		Player p = sp.getPlayer();
-		double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-		double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+	public void doPrimary() {
+		double pitch = ((getPlayer().getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+		double yaw = ((getPlayer().getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 		double x = Math.sin(pitch) * Math.cos(yaw);
 		double y = Math.cos(pitch);
 		double z = Math.sin(pitch) * Math.sin(yaw);
 		Vector v = new Vector(x, y, z).multiply(2.5);
-		Location l = p.getLocation();
+		Location l = getPlayer().getLocation();
 		double xo = Math.cos(yaw);
 		double zo = -Math.sin(yaw);
 		Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
 		l.add(vo.getX(), -0.45, vo.getZ());
 		WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
-		ArmorStandM fn = new ArmorStandM(s,0);
+		ArmorStandM fn = new ArmorStandM(s, 0);
 		fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
 		fn.noclip = true;
 		s.addEntity(fn);
 		CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
-		fn.motX=v.getX();
-		fn.motY=v.getY();
-		fn.motZ=v.getZ();
+		fn.motX = v.getX();
+		fn.motY = v.getY();
+		fn.motZ = v.getZ();
 		an.setVisible(false);
 		an.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
-		an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
-		Cooldown c = new Cooldown(p, 0, 5);
+		an.setHeadPose(an.getHeadPose().setX(getPlayer().getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", getPlayer().getLocation());
+		Cooldown c = new Cooldown(getPlayer(), 0, 5);
 		TextUtil.sendCooldownMessage(c);
 		Smashplex.cooldown.add(c);
-		Lightningbolt bolt = new Lightningbolt(fn, v, p, l, false);
+		Lightningbolt bolt = new Lightningbolt(fn, v, getPlayer(), l, false);
 		Smashplex.bolt.add(bolt);
 	}
 
 	@Override
-	public void doSecondary(SmashPlayer sp) {
-		Player p = sp.getPlayer();
-		int charges = sp.getCharges();
+	public void doSecondary() {
 		if (charges > 0) {
-			double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-			double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+			double pitch = ((getPlayer().getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+			double yaw = ((getPlayer().getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 			double x = Math.sin(pitch) * Math.cos(yaw);
 			double y = Math.cos(pitch);
 			double z = Math.sin(pitch) * Math.sin(yaw);
 			Vector v = new Vector(x, y, z).normalize();
-			Location b = p.getEyeLocation();
+			Location b = getPlayer().getEyeLocation();
 			ArrayList<UUID> hitted = new ArrayList<UUID>();
 			int r = 60 * 2;
 			if (charges > 4) {
@@ -214,7 +211,7 @@ public class Shoop extends Hero {
 							0f, 0f, 0f, 0f, 1);
 					break;
 				}
-				if (b.distance(p.getEyeLocation()) >= 1.0) {
+				if (b.distance(getPlayer().getEyeLocation()) >= 1.0) {
 					switch (charges) {
 					case 2:
 						ParticleUtil.sendPublicParticlePacket(EnumParticle.REDSTONE, b.getX(), b.getY(), b.getZ(),
@@ -248,9 +245,9 @@ public class Shoop extends Hero {
 					}
 				}
 			}
-			sp.setCharges(0);
-			p.getInventory().setItem(1, getSecondary(0.0));
-			b = p.getEyeLocation();
+			charges = 0;
+			getPlayer().getInventory().setItem(1, getSecondary(0.0));
+			b = getPlayer().getEyeLocation();
 			v.normalize().multiply(0.1);
 			// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
 			double bonusxz = 1.0; // 0.35 player model width/length
@@ -267,7 +264,7 @@ public class Shoop extends Hero {
 				}
 				for (LivingEntity le : b.getWorld().getLivingEntities()) {
 					if (!(le instanceof ArmorStand)) {
-						if (le.getUniqueId().compareTo(p.getUniqueId()) != 0) {
+						if (le.getUniqueId().compareTo(getPlayer().getUniqueId()) != 0) {
 							boolean canhit = true;
 							for (int i = 0; i < hitted.size(); i++) {
 								if (hitted.get(i).compareTo(le.getUniqueId()) == 0) {
@@ -280,13 +277,14 @@ public class Shoop extends Hero {
 									if (Math.abs(enemy.getZ() - midm.getZ()) <= 0.35 + bonusxz) {
 										double dy = enemy.getY() - midm.getY();
 										if (dy >= -1.8 - bonusy && dy <= 0 + bonusy) {
-											SoundUtil.sendSoundPacket(p, "random.successful_hit", p.getLocation());
+											SoundUtil.sendSoundPacket(getPlayer(), "random.successful_hit",
+													getPlayer().getLocation());
 											hitted.add(le.getUniqueId());
 											if (le instanceof Player) {
 												Player target = (Player) le;
 												SmashPlayer spt = Smashplex.getSmashPlayer(target);
 												if (spt != null) {
-													if (spt.getSelectedHero() != -1) {
+													if (spt.getSelectedHero() != null) {
 														if (charges == 1) {
 															spt.damage(3.5);
 														} else if (charges == 2) {
@@ -314,19 +312,16 @@ public class Shoop extends Hero {
 	}
 
 	@Override
-	public void doSmash(SmashPlayer sp) {
-		Player p = sp.getPlayer();
+	public void doSmash() {
 		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
-		p.getInventory().setItem(2, getSmash(0));
-		Cooldown c = new Cooldown(p, 2, smashticks);
+		getPlayer().getInventory().setItem(2, getSmash(0));
+		Cooldown c = new Cooldown(getPlayer(), 2, smashticks);
 		Smashplex.cooldown.add(c);
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
 			@Override
 			public void run() {
-				// if (p.hasPermission("smash.admin")) {
-				ShoopLazor sl = new ShoopLazor(p);
+				ShoopLazor sl = new ShoopLazor(getPlayer());
 				Smashplex.lazor.add(sl);
-				// }
 				SoundUtil.sendPublicSoundPacket("mob.wither.death", 0.5f);
 			}
 		}, 45);
@@ -345,6 +340,14 @@ public class Shoop extends Hero {
 	@Override
 	public void doDeathSound() {
 		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.smashed", 1f);
+	}
+
+	public int getCharges() {
+		return this.charges;
+	}
+
+	public void setCharges(int i) {
+		this.charges = i;
 	}
 
 }

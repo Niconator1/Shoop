@@ -8,19 +8,17 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import abilities.Cooldown;
+import heroes.Hero;
 import heroes.Shoop;
 import heroes.Skullfire;
+import util.SoundUtil;
 
 public class SmashPlayer {
 
 	private Player p;
-	private int hero = -1;
-	private int charges = 0;
+	private Hero h;
 	private int jumps = 2;
-	private boolean flamejump = false;
 	private double maxhp;
-	private long lastdmgsound = 0;
-	public long lastshottime = 0;
 
 	public SmashPlayer(Player p, double maxhp) {
 		this.p = p;
@@ -32,26 +30,12 @@ public class SmashPlayer {
 		p.setExp(0);
 	}
 
-	public SmashPlayer(Player p, double maxhp, int hero) {
-		this.p = p;
-		this.hero = hero;
-		this.maxhp = maxhp;
-	}
-
 	public Player getPlayer() {
 		return p;
 	}
 
-	public int getSelectedHero() {
-		return hero;
-	}
-
-	public int getCharges() {
-		return charges;
-	}
-
-	public void setCharges(int charges) {
-		this.charges = charges;
+	public Hero getSelectedHero() {
+		return h;
 	}
 
 	public int getRemainingJumps() {
@@ -62,72 +46,20 @@ public class SmashPlayer {
 		this.jumps = jumps;
 	}
 
-	public void setSelectedHero(int hero) {
-		this.hero = hero;
-	}
-
-	public void setFlameJump(boolean b) {
-		flamejump = b;
-	}
-
-	public boolean getFlameJump() {
-		return flamejump;
-	}
-
-	public Hero getHero() {
-		if (hero == 0) {
-			return new Shoop();
-		} else if (hero == 1) {
-			return new Skullfire();
-		}
-		return null;
-	}
-
-	public void removeHeroItems() {
-		p.getInventory().setHelmet(null);
-		p.getInventory().setChestplate(null);
-		p.getInventory().setLeggings(null);
-		p.getInventory().setBoots(null);
-		p.getInventory().setItem(0, null);
-		p.getInventory().setItem(1, null);
-		p.getInventory().setItem(2, null);
-		p.setAllowFlight(false);
-		p.removePotionEffect(PotionEffectType.JUMP);
-		p.setWalkSpeed(0.2f);
-		p.setLevel(0);
-		p.setExp(0);
-		jumps = 2;
-		charges = 0;
-	}
-
 	public void giveHeroItems() {
-		p.getInventory().setHelmet(getHero().getHelmet());
-		p.getInventory().setChestplate(getHero().getChestplate());
-		p.getInventory().setLeggings(getHero().getLeggings());
-		p.getInventory().setBoots(getHero().getBoots());
-		p.getInventory().setItem(0, getHero().getPrimary(charges));
-		p.getInventory().setItem(1, getHero().getSecondary(0));
-		p.getInventory().setItem(2, getHero().getSmash(0));
-		p.setAllowFlight(true);
-		Cooldown c = new Cooldown(p, 2, getHero().getSmashCooldown());
-		Smashplex.cooldown.add(c);
-		p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
-		p.setWalkSpeed(0.4f);
+
 	}
 
 	public void doPrimary() {
-		Hero h = getHero();
-		h.doPrimary(this);
+		h.doPrimary();
 	}
 
 	public void doSecondary() {
-		Hero h = getHero();
-		h.doSecondary(this);
+		h.doSecondary();
 	}
 
 	public void doSmash() {
-		Hero h = getHero();
-		h.doSmash(this);
+		h.doSmash();
 	}
 
 	public double getHP() {
@@ -140,9 +72,9 @@ public class SmashPlayer {
 			CraftLivingEntity cle = ((CraftLivingEntity) p);
 			cle.getHandle().world.broadcastEntityEffect(cle.getHandle(), (byte) 2);
 			if (getHP() - amount >= 0) {
-				if (System.currentTimeMillis() - lastdmgsound > 1000) {
-					this.getHero().doDamageSound();
-					lastdmgsound = System.currentTimeMillis();
+				if (System.currentTimeMillis() - h.getLastDmgSound() > 1000) {
+					h.doDamageSound();
+					h.setLastDmgSound(System.currentTimeMillis());
 				}
 				double health = (getHP() - amount) / (maxhp) * p.getMaxHealth();
 				p.setHealth(health);
@@ -150,13 +82,37 @@ public class SmashPlayer {
 				p.setHealth(20);
 				p.sendMessage(ChatColor.YELLOW + "You died.");
 				p.teleport(p.getWorld().getSpawnLocation());
-				this.getHero().doDeathSound();
+				h.doDeathSound();
 			}
 		}
 	}
 
 	public double getMasxHP() {
 		return maxhp;
+	}
+
+	public void selectHero(int i) {
+		switch (i) {
+		case 1:
+			h = new Skullfire(p);
+			SoundUtil.sendSoundPacket(p, "Skullfire.select", p.getLocation());
+			break;
+		default:
+			h = new Shoop(p);
+			SoundUtil.sendSoundPacket(p, "ShoopDaWhoop.select", p.getLocation());
+			break;
+		}
+		p.setAllowFlight(true);
+		p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
+		p.setWalkSpeed(0.4f);
+		h.giveItems();
+		Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
+		Smashplex.cooldown.add(c);
+	}
+
+	public void resetHero() {
+		jumps = 2;
+		h.resetHero();
 	}
 
 }
