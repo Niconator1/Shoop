@@ -10,20 +10,26 @@ public abstract class Hero {
 
 	private String name;
 	private int smashc;
-	private int i;
+	private int nr;
 	private Player p;
 	private long lastdmgsound = 0;
 	private long lastshottime = 0;
+	private boolean ms;
 
-	public Hero(Player p, String name, int smashc, int nr) {
+	public Hero(Player p, String name, int smashc, int nr, boolean ms) {
 		this.name = name;
 		this.smashc = smashc;
-		this.i = nr;
+		this.nr = nr;
 		this.p = p;
+		this.ms = ms;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isMasterSkin() {
+		return ms;
 	}
 
 	public int getSmashCooldown() {
@@ -84,7 +90,7 @@ public abstract class Hero {
 	}
 
 	public int getNumber() {
-		return i;
+		return nr;
 	}
 
 	public void giveItems() {

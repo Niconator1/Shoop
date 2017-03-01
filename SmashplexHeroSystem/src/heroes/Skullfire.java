@@ -39,8 +39,8 @@ public class Skullfire extends Hero {
 	private int bullets = 99;
 	private int flamejumps = 0;
 
-	public Skullfire(Player p) {
-		super(p, "Skullfire", smashticks, 1);
+	public Skullfire(Player p, boolean ms) {
+		super(p, "Skullfire", smashticks, 1, ms);
 		Cooldown c = new Cooldown(p, 0, -1);
 		Cooldown c2 = new Cooldown(p, 1, -1);
 		TextUtil.sendCooldownMessage(c);

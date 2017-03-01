@@ -38,27 +38,44 @@ public class Shoop extends Hero {
 	private static int smashticks = 1999;
 	private int charges = 0;
 
-	public Shoop(Player p) {
-		super(p, "Shoop", smashticks, 0);
+	public Shoop(Player p, boolean ms) {
+		super(p, "Shoop", smashticks, 0, ms);
 	}
 
 	@Override
 	public ItemStack getHelmet() {
-		ItemStack is = new ItemStack(Material.CARPET, 1, (short) 1);
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.AQUA + "Shoop's Mask");
-		is.setItemMeta(im);
-		return is;
+		if (isMasterSkin()) {
+			ItemStack is = new ItemStack(Material.WOOL, 1, (short) 7);
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Shoop's Mask");
+			is.setItemMeta(im);
+			return is;
+		} else {
+			ItemStack is = new ItemStack(Material.CARPET, 1, (short) 1);
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Shoop's Mask");
+			is.setItemMeta(im);
+			return is;
+		}
 	}
 
 	@Override
 	public ItemStack getChestplate() {
-		ItemStack is = new ItemStack(Material.LEATHER_CHESTPLATE);
-		is = addColor(is, Color.fromRGB(0x009E10));
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.AQUA + "Shoop's Chestpiece");
-		is.setItemMeta(im);
-		return is;
+		if (isMasterSkin()) {
+			ItemStack is = new ItemStack(Material.LEATHER_CHESTPLATE);
+			is = addColor(is, Color.fromRGB(0x3C1362));
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Shoop's Chestpiece");
+			is.setItemMeta(im);
+			return is;
+		} else {
+			ItemStack is = new ItemStack(Material.LEATHER_CHESTPLATE);
+			is = addColor(is, Color.fromRGB(0x009E10));
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Shoop's Chestpiece");
+			is.setItemMeta(im);
+			return is;
+		}
 	}
 
 	@Override

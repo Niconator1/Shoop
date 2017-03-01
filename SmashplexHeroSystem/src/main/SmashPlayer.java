@@ -94,11 +94,11 @@ public class SmashPlayer {
 	public void selectHero(int i) {
 		switch (i) {
 		case 1:
-			h = new Skullfire(p);
+			h = new Skullfire(p, false);
 			SoundUtil.sendSoundPacket(p, "Skullfire.select", p.getLocation());
 			break;
 		default:
-			h = new Shoop(p);
+			h = new Shoop(p, false);
 			SoundUtil.sendSoundPacket(p, "ShoopDaWhoop.select", p.getLocation());
 			break;
 		}
