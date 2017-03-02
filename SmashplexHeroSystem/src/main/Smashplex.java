@@ -50,13 +50,15 @@ public class Smashplex extends JavaPlugin {
 			Smashplex.players.add(sp);
 			for (int i = 0; i < npcs.size(); i++) {
 				NPC n = npcs.get(i);
-				n.spawnGlobal(false);
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
-						new Runnable() {
-							public void run() {
-								n.rmvFromTablist();
-							}
-						}, 100);
+				if (p.getLocation().distance(n.getLocation()) < 100) {
+					n.spawn(p, false);
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+							new Runnable() {
+								public void run() {
+									n.rmvFromTablist(p);
+								}
+							}, 100);
+				}
 			}
 		}
 	}

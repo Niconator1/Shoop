@@ -45,13 +45,15 @@ public class EventManager implements Listener {
 		Smashplex.players.add(sp);
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
-			n.spawn(p, false);
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
-					new Runnable() {
-						public void run() {
-							n.rmvFromTablist(p);
-						}
-					}, 100);
+			if (p.getLocation().distance(n.getLocation()) < 100) {
+				n.spawn(p, false);
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+						new Runnable() {
+							public void run() {
+								n.rmvFromTablist(p);
+							}
+						}, 100);
+			}
 		}
 	}
 
@@ -244,6 +246,21 @@ public class EventManager implements Listener {
 						s.setFlameJumps(0);
 					}
 				}
+			}
+		}
+		for (int i = 0; i < Smashplex.npcs.size(); i++) {
+			NPC n = Smashplex.npcs.get(i);
+			if (event.getTo().distance(n.getLocation()) < 100.0 && event.getFrom().distance(n.getLocation()) > 100.0) {
+				n.spawn(p, false);
+				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+						new Runnable() {
+							public void run() {
+								n.rmvFromTablist(p);
+							}
+						}, 100);
+			} else if (event.getTo().distance(n.getLocation()) > 100.0
+					&& event.getFrom().distance(n.getLocation()) < 100.0) {
+				n.destroy(p);
 			}
 		}
 	}

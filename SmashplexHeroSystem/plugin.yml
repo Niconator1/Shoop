@@ -5,7 +5,7 @@ description: >
 
 author: Niconator1
 main: main.Smashplex
-load: STARTUP
+load: POSTWORLD
 
 commands:
     smash:

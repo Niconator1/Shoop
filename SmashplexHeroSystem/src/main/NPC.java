@@ -49,6 +49,10 @@ public class NPC {
 		this.value = value;
 	}
 
+	public Location getLocation() {
+		return location;
+	}
+
 	public void changeSkin(String value, String signature) {
 		gameprofile.getProperties().removeAll("textures");
 		gameprofile.getProperties().put("textures", new Property("textures", value, signature));
