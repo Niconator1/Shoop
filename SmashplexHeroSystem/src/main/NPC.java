@@ -70,62 +70,6 @@ public class NPC {
 		}
 	}
 
-	public void spawnGlobal(boolean ms) {
-		changeSkin(value, signature);
-		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
-		setValue(packet, "a", entityID);
-		setValue(packet, "b", gameprofile.getId());
-		setValue(packet, "c", getFixLocation(location.getX()));
-		setValue(packet, "d", getFixLocation(location.getY()));
-		setValue(packet, "e", getFixLocation(location.getZ()));
-		setValue(packet, "f", getFixRotation(location.getYaw()));
-		setValue(packet, "g", getFixRotation(location.getPitch()));
-		setValue(packet, "h", 0);
-		DataWatcher w = new DataWatcher(null);
-		w.a(3, (byte) 0);
-		w.a(6, (float) 20);
-		w.a(10, (byte) 127);
-		setValue(packet, "i", w);
-		addToTablist();
-		sendPacket(packet);
-		if (ms) {
-			for (int i = 0; i < msinventory.length; i++) {
-				if (msinventory[i] != null) {
-					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
-							msinventory[i]);
-					sendPacket(packet2);
-				}
-			}
-		} else {
-			for (int i = 0; i < inventory.length; i++) {
-				if (inventory[i] != null) {
-					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
-					sendPacket(packet2);
-				}
-			}
-		}
-		PacketPlayOutEntityHeadRotation packet3 = new PacketPlayOutEntityHeadRotation();
-		setValue(packet3, "a", entityID);
-		setValue(packet3, "b", getFixRotation(headrot));
-		sendPacket(packet3);
-		PacketPlayOutSpawnEntityLiving packet4 = new PacketPlayOutSpawnEntityLiving();
-		setValue(packet4, "a", nameID);
-		setValue(packet4, "b", (byte) 30);
-		setValue(packet4, "c", getFixLocation(location.getX()));
-		setValue(packet4, "d", getFixLocation(location.getY() + 0.40625));
-		setValue(packet4, "e", getFixLocation(location.getZ()));
-		setValue(packet4, "i", getFixRotation(location.getYaw()));
-		setValue(packet4, "j", getFixRotation(location.getPitch()));
-		setValue(packet4, "k", getFixRotation(headrot));
-		DataWatcher w2 = new DataWatcher(null);
-		w2.a(0, (byte) 0x20);
-		w2.a(2, ChatColor.GREEN + "Shoop" + ChatColor.RESET);
-		w2.a(3, (byte) 1);
-		w2.a(6, (float) 20);
-		setValue(packet4, "l", w2);
-		sendPacket(packet4);
-	}
-
 	public void spawn(Player p, boolean ms) {
 		changeSkin(value, signature);
 		PacketPlayOutNamedEntitySpawn packet = new PacketPlayOutNamedEntitySpawn();
@@ -144,22 +88,7 @@ public class NPC {
 		setValue(packet, "i", w);
 		addToTablist(p);
 		sendPacket(packet, p);
-		if (ms) {
-			for (int i = 0; i < msinventory.length; i++) {
-				if (msinventory[i] != null) {
-					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
-							msinventory[i]);
-					sendPacket(packet2);
-				}
-			}
-		} else {
-			for (int i = 0; i < inventory.length; i++) {
-				if (inventory[i] != null) {
-					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
-					sendPacket(packet2);
-				}
-			}
-		}
+		sendEquipmentPacket(p, ms);
 		PacketPlayOutEntityHeadRotation packet3 = new PacketPlayOutEntityHeadRotation();
 		setValue(packet3, "a", entityID);
 		setValue(packet3, "b", getFixRotation(headrot));
@@ -180,6 +109,25 @@ public class NPC {
 		w2.a(6, (float) 20);
 		setValue(packet4, "l", w2);
 		sendPacket(packet4, p);
+	}
+
+	public void sendEquipmentPacket(Player p, boolean ms) {
+		if (ms) {
+			for (int i = 0; i < msinventory.length; i++) {
+				if (msinventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
+							msinventory[i]);
+					sendPacket(packet2);
+				}
+			}
+		} else {
+			for (int i = 0; i < inventory.length; i++) {
+				if (inventory[i] != null) {
+					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
+					sendPacket(packet2);
+				}
+			}
+		}
 	}
 
 	public void destroyGlobal() {

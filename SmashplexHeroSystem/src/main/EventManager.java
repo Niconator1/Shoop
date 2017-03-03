@@ -250,15 +250,22 @@ public class EventManager implements Listener {
 		}
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
-			if (event.getTo().distance(n.getLocation()) < 100.0 && event.getFrom().distance(n.getLocation()) > 100.0) {
-				n.spawn(p, false);
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
-						new Runnable() {
-							public void run() {
-								n.rmvFromTablist(p);
-							}
-						}, 100);
-			} else if (event.getTo().distance(n.getLocation()) > 100.0
+			if (event.getTo().getWorld().getUID().compareTo(event.getFrom().getWorld().getUID()) == 0
+					&& event.getTo().getWorld().getUID().compareTo(n.getLocation().getWorld().getUID()) == 0) {
+				if (event.getTo().distance(n.getLocation()) < 100.0
+						&& event.getFrom().distance(n.getLocation()) > 100.0) {
+					n.spawn(p, false);
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+							new Runnable() {
+								public void run() {
+									n.rmvFromTablist(p);
+								}
+							}, 100);
+				} else if (event.getTo().distance(n.getLocation()) > 100.0
+						&& event.getFrom().distance(n.getLocation()) < 100.0) {
+					n.destroy(p);
+				}
+			} else if (event.getFrom().getWorld().getUID().compareTo(n.getLocation().getWorld().getUID()) == 0
 					&& event.getFrom().distance(n.getLocation()) < 100.0) {
 				n.destroy(p);
 			}

@@ -112,7 +112,14 @@ public class SmashPlayer {
 
 	public void resetHero() {
 		jumps = 2;
+		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+			Cooldown c = Smashplex.cooldown.get(i);
+			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+				Smashplex.cooldown.remove(i);
+			}
+		}
 		h.resetHero();
+		h = null;
 	}
 
 }

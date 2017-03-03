@@ -10,6 +10,7 @@ import commands.SmashArmorCommand;
 import commands.SmashBotmobileCommand;
 import commands.SmashEnableCommand;
 import commands.SmashHeroRemoveCommand;
+import commands.SmashMasterSkinCommand;
 import commands.SmashShoopCommand;
 import commands.SmashSkullfireCommand;
 
@@ -33,6 +34,7 @@ public class SmashCommands {
 		commands.add(new SmashBotmobileCommand("botmobile", "smash.util"));
 		commands.add(new SmashShoopCommand("shoop", "smash.util"));
 		commands.add(new SmashSkullfireCommand("skullfire", "smash.util"));
+		commands.add(new SmashMasterSkinCommand("masterskin","smash.util"));
 	}
 
 }

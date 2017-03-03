@@ -22,6 +22,8 @@ commands:
         description: Create an color test armor
     botmobile:
         description: Prepare for the awesome Botmobile
+    masterskin:
+        description: Toggle between normal and master skin npc
 permissions:
     smash.admin:
         default: false

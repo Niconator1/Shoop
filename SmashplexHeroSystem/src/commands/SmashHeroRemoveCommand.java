@@ -3,7 +3,6 @@ package commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import abilities.Cooldown;
 import main.SmashPlayer;
 import main.Smashplex;
 
@@ -21,12 +20,6 @@ public class SmashHeroRemoveCommand extends SCommand {
 			if (sp != null) {
 				if (sp.getSelectedHero() != null) {
 					sp.resetHero();
-					for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-						Cooldown c = Smashplex.cooldown.get(i);
-						if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-							Smashplex.cooldown.remove(i);
-						}
-					}
 				}
 				sender.sendMessage("Your selected hero was reseted");
 				return true;

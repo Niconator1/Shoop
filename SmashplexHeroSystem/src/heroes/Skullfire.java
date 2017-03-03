@@ -359,4 +359,10 @@ public class Skullfire extends Hero {
 		flamejumps = i;
 	}
 
+	@Override
+	public void giveItems() {
+		super.giveItems();
+		getPlayer().getInventory().setItem(0, getPrimary(bullets));
+	}
+
 }
