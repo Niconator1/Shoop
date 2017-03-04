@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_8_R3.util.CraftChatMessage;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -38,6 +39,7 @@ public class NPC {
 	private float headrot;
 	private String value;
 	private String signature;
+	private Inventory i;
 
 	public NPC(String name, Location location, float headrot, String value, String signature) {
 		entityID = (int) Math.ceil(Math.random() * 1000) + 2000;
@@ -51,6 +53,10 @@ public class NPC {
 
 	public Location getLocation() {
 		return location;
+	}
+
+	public void setInventory(Inventory inventory) {
+		i = inventory;
 	}
 
 	public void changeSkin(String value, String signature) {
@@ -236,6 +242,18 @@ public class NPC {
 	public void sendPacket(Packet<?> packet) {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			sendPacket(packet, player);
+		}
+	}
+
+	public int getEntityID() {
+		return entityID;
+	}
+
+	public void openGUI(Player player) {
+		if (i != null) {
+			player.openInventory(i);
+		} else {
+			player.sendMessage("GUI missing");
 		}
 	}
 }

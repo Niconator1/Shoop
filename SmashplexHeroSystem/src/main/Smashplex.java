@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.NameTagVisibility;
@@ -35,6 +36,7 @@ public class Smashplex extends JavaPlugin {
 	public static boolean smash = true;
 	public static Objective obj;
 	public static Team team;
+	public static NetworkManager nmanager;
 
 	public void onEnable() {
 		this.getLogger().info("Smashplex enabled");
@@ -45,6 +47,12 @@ public class Smashplex extends JavaPlugin {
 		HeroLoops.loopsShoop();
 		SmashCommands.registerCommands();
 		registerLobbyNPCs();
+		if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
+			nmanager = new NetworkManager();
+			nmanager.registerNetworkHandling();
+		} else {
+			this.getLogger().warning("Some features will not work without ProtocolLib");
+		}
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			SmashPlayer sp = new SmashPlayer(p, 100);
 			Smashplex.players.add(sp);
@@ -105,8 +113,9 @@ public class Smashplex extends JavaPlugin {
 			}
 			team.setNameTagVisibility(NameTagVisibility.NEVER);
 		}
+		Inventory invshoop = Bukkit.createInventory(null, 54, "Shoop");
 		NPC shoop = new NPC("i13u1i3u12i3u1",
-				new Location(Bukkit.getWorld("lobby"), 839.5, 39.5, 62.5, 82.96875f, 7.03125f), 82.96875f,
+				new Location(Bukkit.getWorld("world"), 839.5, 39.5, 62.5, 82.96875f, 7.03125f), 82.96875f,
 				"eyJ0aW1lc3RhbXAiOjE0NDMyMzE4ODgzNDksInByb2ZpbGVJZCI6ImFhZDIzYTUwZWVkODQ3MTA5OWNmNjRiZThmZjM0ZWY0IiwicHJvZmlsZU5hbWUiOiIxUm9ndWUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2UwMjE2MTJlMjEwNDZkNDY4OGIyMjhjYjM3MDJiYjZhZWM3YTA4Yjc4YjBmNTYwMTljMDRmYWUyYWQyOTQyZCJ9fX0=",
 				"yRVtcYcMOKmDtUkY0c1ruzkJQVswrCExRrG8He5qKUltUT1RI+CMlhjovdEfxfwXRXWQz9BTmfrVlhEwBu7NIfWfimj8twotmGgcJ4ZLSGlkyc/VMwrIMUKzZowvIObQqEWenBQYW3uSfYKFStyi6jCzNOmY4fkCc3VVPBGKKdXOVWo9vGVg63tUjLJZlBSL9r0Cr6IUn7lAQg7cGwGxyikh6/B6tCrpr8/ssJJWJnyDw/rcwnbALJfZVvxAEipA3qA47u3FUntN0CNQIzdVi/y+nNRH+jmyDmV5CSDGELCODrXF1ll/R5gYKn3ZJuSBuY6PjdvpDBr9EeKhD7EFNjTrMqIUoWu+KX6hzwA8DVK2EPn4ZXk31siHQz1L6vd37Y8s8V5fqYj0293frhJ3aiOoUhH5tmfcpV0k7Vdpp2RQVdJk+cHO3t0I6vvroNKoD+pbk8FqA1BxLH4oM8fX4J6Dfk0jFTGSDFdoIp2As8q34ZZrZoTSOf36Hm8tAmXNi0cqxANwQ5zyA9467MDLncTcCWn1NsU1W7KPBBY7mQf4VOhi2zFYKdB2rYMbxbbQ2dGWdUcZFqPmj2DLx/k0HkNiEVOZyxnvuKWydA+L+T+36zHFbs3mo5P414/yI/Zwwxx0xRhE1FIorqj2OphSkmMS4wBzLt96tJjAsaV8af8=");
 		Shoop npc = new Shoop(null, false);
@@ -122,6 +131,7 @@ public class Smashplex extends JavaPlugin {
 		shoop.setMasterItemStack(2, npc.getLeggings());
 		shoop.setMasterItemStack(3, npc.getChestplate());
 		shoop.setMasterItemStack(4, npc.getHelmet());
+		shoop.setInventory(invshoop);
 		npcs.add(shoop);
 	}
 
