@@ -16,6 +16,7 @@ import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import configuration.heroes;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -121,7 +122,7 @@ public class HeroLoops {
 																SmashPlayer spt = Smashplex.getSmashPlayer(target);
 																if (spt != null) {
 																	if (spt.getSelectedHero() != null) {
-																		spt.damage(1.5);
+																		spt.damage(heroes.SHOOPBOLTDAMAGE);
 																		Vector kb = KnockbackUtil
 																				.getShoopPrimaryVelocity(
 																						b.getShoop().getLocation()
@@ -139,11 +140,11 @@ public class HeroLoops {
 															if (sp != null) {
 																if (sp.getSelectedHero().getNumber() == 0) {
 																	Shoop s = (Shoop) sp.getSelectedHero();
-																	if (s.getCharges() < 5) {
+																	if (s.getCharges() < heroes.SHOOPMAXCHARGES) {
 																		s.setCharges(s.getCharges() + 1);
 																		b.getShoop().getInventory().setItem(1,
 																				s.getSecondary(((double) s.getCharges())
-																						/ 5.0));
+																						/ ((double) (heroes.SHOOPMAXCHARGES))));
 																	}
 																}
 															}
@@ -153,7 +154,8 @@ public class HeroLoops {
 																	if (c.getPlayer().getUniqueId().compareTo(
 																			b.getShoop().getUniqueId()) == 0) {
 																		if (c.getSkill() == 2) {
-																			c.setTicks(c.getTicks() - 40);
+																			c.setTicks(c.getTicks()
+																					- heroes.SHOOPBOLTSMASHREDUCTION);
 																		}
 																	}
 																}
@@ -168,7 +170,7 @@ public class HeroLoops {
 								}
 							}
 							if (b.isPassive()) {
-								if (mid.distance(b.start()) >= 55) {
+								if (mid.distance(b.start()) >= heroes.SHOOPPASSIVERANGE) {
 									stand.setPassenger(null);
 									stand.remove();
 									Smashplex.bolt.remove(i);

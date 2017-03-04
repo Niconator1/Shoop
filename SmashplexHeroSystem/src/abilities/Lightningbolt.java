@@ -12,7 +12,6 @@ public class Lightningbolt {
 	private ArmorStandM a;
 	private Vector v;
 	private Player shoop;
-	private double damage = 1.5;
 	private Location start;
 	private boolean isPassive;
 	private ArrayList<UUID> hitted = new ArrayList<UUID>();
@@ -39,10 +38,6 @@ public class Lightningbolt {
 
 	public Location start() {
 		return start;
-	}
-
-	public double getDamage() {
-		return damage;
 	}
 
 	public void addHitted(UUID p) {

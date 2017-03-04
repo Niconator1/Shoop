@@ -24,6 +24,7 @@ import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import configuration.heroes;
 import main.SmashPlayer;
 import main.Smashplex;
 import net.minecraft.server.v1_8_R3.EnumParticle;
@@ -35,11 +36,10 @@ import util.TextUtil;
 
 public class Shoop extends Hero {
 
-	private static int smashticks = 1999;
 	private int charges = 0;
 
 	public Shoop(Player p, boolean ms) {
-		super(p, "Shoop", smashticks, 0, ms);
+		super(p, "Shoop", heroes.SHOOPSMASHTICKS, 0, ms);
 	}
 
 	@Override
@@ -111,7 +111,8 @@ public class Shoop extends Hero {
 		lore.add(ChatColor.GRAY + "damage to anyone it passes");
 		lore.add(ChatColor.GRAY + "through. Grants " + ChatColor.GREEN + "1" + ChatColor.GRAY + " charge of");
 		lore.add(ChatColor.GREEN + "Charged Lazor " + ChatColor.GRAY + "per enemy");
-		lore.add(ChatColor.GRAY + "hit. A maximum of " + ChatColor.GREEN + "5" + ChatColor.GRAY + " charges");
+		lore.add(ChatColor.GRAY + "hit. A maximum of " + ChatColor.GREEN + heroes.SHOOPMAXCHARGES + ChatColor.GRAY
+				+ " charges");
 		lore.add(ChatColor.GRAY + "can be stored.");
 		im.setLore(lore);
 		is.setItemMeta(im);
@@ -124,7 +125,7 @@ public class Shoop extends Hero {
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.RED + "Charged Lazor " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		if (charges > 0) {
-			is = new ItemStack(Material.INK_SACK, (int) (charges * 5.0 + 0.5), (short) 2);
+			is = new ItemStack(Material.INK_SACK, (int) (charges * ((double) heroes.SHOOPMAXCHARGES) + 0.5), (short) 2);
 			im.setDisplayName(ChatColor.GREEN + "Charged Lazor " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [2]");
 		}
 		ArrayList<String> lore = new ArrayList<String>();
@@ -168,7 +169,7 @@ public class Shoop extends Hero {
 		double x = Math.sin(pitch) * Math.cos(yaw);
 		double y = Math.cos(pitch);
 		double z = Math.sin(pitch) * Math.sin(yaw);
-		Vector v = new Vector(x, y, z).multiply(2.5);
+		Vector v = new Vector(x, y, z).multiply(heroes.SHOOPBOLTSPEED);
 		Location l = getPlayer().getLocation();
 		double xo = Math.cos(yaw);
 		double zo = -Math.sin(yaw);
@@ -187,7 +188,7 @@ public class Shoop extends Hero {
 		an.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
 		an.setHeadPose(an.getHeadPose().setX(getPlayer().getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
 		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", getPlayer().getLocation());
-		Cooldown c = new Cooldown(getPlayer(), 0, 5);
+		Cooldown c = new Cooldown(getPlayer(), 0, heroes.SHOOPBOLTTICKS);
 		TextUtil.sendCooldownMessage(c);
 		Smashplex.cooldown.add(c);
 		Lightningbolt bolt = new Lightningbolt(fn, v, getPlayer(), l, false);
@@ -205,7 +206,7 @@ public class Shoop extends Hero {
 			Vector v = new Vector(x, y, z).normalize();
 			Location b = getPlayer().getEyeLocation();
 			ArrayList<UUID> hitted = new ArrayList<UUID>();
-			int r = 60 * 2;
+			int r = heroes.SHOOPCHARGEDRANGE * 2;
 			if (charges > 4) {
 				SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.chargedbeam.big", 1f);
 				v.multiply(0.5);
@@ -269,7 +270,7 @@ public class Shoop extends Hero {
 			// Hitbox is about 2.5(h)x0.75(w)x0.75(l)
 			double bonusxz = 1.0; // 0.35 player model width/length
 			double bonusy = 0.8; // 1.8 player model height
-			for (double j = 0; j <= 60; j += 0.1) {
+			for (double j = 0; j <= heroes.SHOOPCHARGEDRANGE; j += 0.1) {
 				Location midm = b.add(v);
 				Block c = midm.getBlock();
 				if (c.getType() == Material.STEP) {
@@ -302,16 +303,8 @@ public class Shoop extends Hero {
 												SmashPlayer spt = Smashplex.getSmashPlayer(target);
 												if (spt != null) {
 													if (spt.getSelectedHero() != null) {
-														if (charges == 1) {
-															spt.damage(3.5);
-														} else if (charges == 2) {
-															spt.damage(5);
-														} else if (charges == 3) {
-															spt.damage(6.2);
-														} else if (charges == 4) {
-															spt.damage(6.7);
-														} else if (charges == 5) {
-															spt.damage(18);
+														if (heroes.SHOOPCHARGEDDAMAGE.length > charges - 1) {
+															spt.damage(heroes.SHOOPCHARGEDDAMAGE[charges - 1]);
 														}
 													}
 												}
@@ -332,7 +325,7 @@ public class Shoop extends Hero {
 	public void doSmash() {
 		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.crystal", 1.0f);
 		getPlayer().getInventory().setItem(2, getSmash(0));
-		Cooldown c = new Cooldown(getPlayer(), 2, smashticks);
+		Cooldown c = new Cooldown(getPlayer(), 2, getSmashCooldown());
 		Smashplex.cooldown.add(c);
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Smashplex.getPlugin(Smashplex.class), new Runnable() {
 			@Override
@@ -346,7 +339,7 @@ public class Shoop extends Hero {
 
 	@Override
 	public double getMeleeDamage() {
-		return 2.0;
+		return heroes.SHOOPMELEEDAMAGE;
 	}
 
 	@Override

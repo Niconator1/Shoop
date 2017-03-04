@@ -31,6 +31,7 @@ import abilities.ArmorStandM;
 import abilities.Cooldown;
 import abilities.FlameJump;
 import abilities.Lightningbolt;
+import configuration.heroes;
 import heroes.Skullfire;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.WorldServer;
@@ -65,14 +66,14 @@ public class EventManager implements Listener {
 			if (sp != null) {
 				if (sp.getSelectedHero() != null) {
 					if (sp.getSelectedHero().getNumber() == 0) {
-						if (p.getLevel() >= 98) {
+						if (p.getLevel() >= heroes.SHOOPPASSIVEENERGY) {
 							p.setSneaking(false);
 							double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
 							double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
 							double x = Math.sin(pitch) * Math.cos(yaw);
 							double y = Math.cos(pitch);
 							double z = Math.sin(pitch) * Math.sin(yaw);
-							Vector v = new Vector(x, y, z).multiply(2.0);
+							Vector v = new Vector(x, y, z).multiply(heroes.SHOOPPASSIVESPEED);
 							Location l = p.getLocation();
 							double xo = Math.cos(yaw);
 							double zo = -Math.sin(yaw);
@@ -94,7 +95,7 @@ public class EventManager implements Listener {
 							an.setPassenger(p);
 							Lightningbolt bolt = new Lightningbolt(fn, v, e.getPlayer(), l, true);
 							Smashplex.bolt.add(bolt);
-							p.setLevel(p.getLevel() - 98);
+							p.setLevel(p.getLevel() - heroes.SHOOPPASSIVEENERGY);
 							float pro = p.getLevel() / (100 + 0.000001f);
 							p.setExp(pro);
 							e.setCancelled(true);

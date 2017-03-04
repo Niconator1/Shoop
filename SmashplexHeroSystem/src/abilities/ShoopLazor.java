@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import configuration.heroes;
 import net.minecraft.server.v1_8_R3.EnumParticle;
 import net.minecraft.server.v1_8_R3.MathHelper;
 import net.minecraft.server.v1_8_R3.PacketPlayOutEntityTeleport;
@@ -25,8 +26,8 @@ import util.TextUtil;
 public class ShoopLazor {
 	private Player shoop;
 	private ArrayList<ArmorStand> alist = new ArrayList<ArmorStand>();
-	private int ticks = 80;
-	private double length = 55.0;
+	private int ticks = heroes.SHOOPSMASHDURATIONTICKS;
+	private double length = heroes.SHOOPSMASHRANGE;
 
 	public ShoopLazor(Player shoop) {
 		this.shoop = shoop;

@@ -22,6 +22,7 @@ import abilities.Lightningbolt;
 import abilities.ShoopLazor;
 import heroes.HeroLoops;
 import heroes.Shoop;
+import heroes.Skullfire;
 import util.SoundUtil;
 import util.TextUtil;
 
@@ -185,10 +186,10 @@ public class Smashplex extends JavaPlugin {
 							if (p.isOnline()) {
 								SmashPlayer sp = getSmashPlayer(p);
 								if (sp != null) {
-									if (sp.getSelectedHero().getNumber() == 0) {
-										Shoop s = (Shoop) sp.getSelectedHero();
-										s.setCharges(99);
-										p.getInventory().setItem(0, s.getPrimary(s.getCharges()));
+									if (sp.getSelectedHero().getNumber() == 1) {
+										Skullfire s = (Skullfire) sp.getSelectedHero();
+										s.setBullets(99);
+										p.getInventory().setItem(0, s.getPrimary(s.getBullets()));
 									}
 								}
 							}

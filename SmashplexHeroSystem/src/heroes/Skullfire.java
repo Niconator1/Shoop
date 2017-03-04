@@ -365,4 +365,12 @@ public class Skullfire extends Hero {
 		getPlayer().getInventory().setItem(0, getPrimary(bullets));
 	}
 
+	public int getBullets() {
+		return this.bullets;
+	}
+
+	public void setBullets(int i) {
+		this.bullets = i;
+	}
+
 }
