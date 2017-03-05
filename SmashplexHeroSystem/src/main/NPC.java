@@ -27,6 +27,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_8_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_8_R3.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_8_R3.WorldSettings.EnumGamemode;
+import util.SoundUtil;
 
 public class NPC {
 
@@ -39,9 +40,10 @@ public class NPC {
 	private float headrot;
 	private String value;
 	private String signature;
+	private String sound;
 	private Inventory i;
 
-	public NPC(String name, Location location, float headrot, String value, String signature) {
+	public NPC(String name, Location location, float headrot, String value, String signature, String sound) {
 		entityID = (int) Math.ceil(Math.random() * 1000) + 2000;
 		nameID = entityID + 1;
 		gameprofile = new GameProfile(UUID.randomUUID(), name);
@@ -49,6 +51,7 @@ public class NPC {
 		this.location = location.clone();
 		this.signature = signature;
 		this.value = value;
+		this.sound = sound;
 	}
 
 	public Location getLocation() {
@@ -252,6 +255,7 @@ public class NPC {
 	public void openGUI(Player player) {
 		if (i != null) {
 			player.openInventory(i);
+			SoundUtil.sendSoundPacket(player, sound, player.getLocation());
 		} else {
 			player.sendMessage("GUI missing");
 		}
