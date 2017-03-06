@@ -1,5 +1,7 @@
 package main;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -46,7 +48,9 @@ public class EventManager implements Listener {
 		Smashplex.players.add(sp);
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
-			if (p.getLocation().distance(n.getLocation()) < 100) {
+			UUID npc = n.getLocation().getWorld().getUID();
+			if (npc.compareTo(p.getLocation().getWorld().getUID()) == 0
+					&& p.getLocation().distance(n.getLocation()) < 100.0) {
 				n.spawn(p, false);
 				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
 						new Runnable() {
@@ -125,6 +129,9 @@ public class EventManager implements Listener {
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
 			n.destroy(p);
+		}
+		if (Smashplex.getGame(p) != null) {
+			Smashplex.getGame(p).leave(p);
 		}
 	}
 
@@ -249,26 +256,61 @@ public class EventManager implements Listener {
 				}
 			}
 		}
+		UUID to = event.getTo().getWorld().getUID();
+		UUID from = event.getFrom().getWorld().getUID();
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
-			if (event.getTo().getWorld().getUID().compareTo(event.getFrom().getWorld().getUID()) == 0
-					&& event.getTo().getWorld().getUID().compareTo(n.getLocation().getWorld().getUID()) == 0) {
-				if (event.getTo().distance(n.getLocation()) < 100.0
-						&& event.getFrom().distance(n.getLocation()) > 100.0) {
-					n.spawn(p, false);
-					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
-							new Runnable() {
-								public void run() {
-									n.rmvFromTablist(p);
-								}
-							}, 100);
-				} else if (event.getTo().distance(n.getLocation()) > 100.0
-						&& event.getFrom().distance(n.getLocation()) < 100.0) {
-					n.destroy(p);
+			UUID npc = n.getLocation().getWorld().getUID();
+			if (to.compareTo(npc) == 0) {
+				if (from.compareTo(npc) == 0) {
+					if (event.getTo().distance(n.getLocation()) < 100.0) {
+						if (event.getFrom().distance(n.getLocation()) > 100.0) {
+							// Walked in right dimension and entered range
+							n.spawn(p, false);
+							Bukkit.getServer().getScheduler()
+									.scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class), new Runnable() {
+										public void run() {
+											n.rmvFromTablist(p);
+										}
+									}, 100);
+						} else {
+							// Nothing, walked in right dimension while in range
+						}
+					} else {
+						if (event.getFrom().distance(n.getLocation()) < 100.0) {
+							// Walked in right dimension and left range
+							n.destroy(p);
+						} else {
+							// Nothing, walked in right dimension outside of
+							// range
+						}
+					}
+				} else {
+					if (event.getTo().distance(n.getLocation()) < 100.0) {
+						// Entered right dimension and in reach
+						n.spawn(p, false);
+						Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(Smashplex.class),
+								new Runnable() {
+									public void run() {
+										n.rmvFromTablist(p);
+									}
+								}, 100);
+					} else {
+						// Nothing, entered right dimension but not in reach
+					}
 				}
-			} else if (event.getFrom().getWorld().getUID().compareTo(n.getLocation().getWorld().getUID()) == 0
-					&& event.getFrom().distance(n.getLocation()) < 100.0) {
-				n.destroy(p);
+			} else {
+				if (from.compareTo(npc) == 0) {
+					if (event.getFrom().distance(n.getLocation()) < 100.0) {
+						// Left right dimension and in reach
+						n.destroy(p);
+					} else {
+						// Nothing, Left right dimension but not in reach
+					}
+
+				} else {
+					// Changed dimensions but none of them was an npc dimension
+				}
 			}
 		}
 	}

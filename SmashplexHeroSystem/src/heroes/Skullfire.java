@@ -36,24 +36,35 @@ import util.TextUtil;
 public class Skullfire extends Hero {
 
 	private static int smashticks = 1999;
-	private int bullets = 99;
+	private int bullets = 7;
 	private int flamejumps = 0;
 
 	public Skullfire(Player p, boolean ms) {
 		super(p, "Skullfire", smashticks, 1, ms);
-		Cooldown c = new Cooldown(p, 0, -1);
-		Cooldown c2 = new Cooldown(p, 1, -1);
-		TextUtil.sendCooldownMessage(c);
-		Smashplex.cooldown.add(c2);
+		if (p != null) {
+			Cooldown c = new Cooldown(p, 0, -1);
+			Cooldown c2 = new Cooldown(p, 1, -1);
+			TextUtil.sendCooldownMessage(c);
+			Smashplex.cooldown.add(c2);
+		}
 	}
 
 	@Override
 	public ItemStack getHelmet() {
-		ItemStack is = new ItemStack(Material.CARPET, 1, (short) 9);
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.AQUA + "Skullfire's Mask");
-		is.setItemMeta(im);
-		return is;
+		if (isMasterSkin()) {
+			ItemStack is = new ItemStack(Material.ANVIL, 1, (short) 2);
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Skullfire's Mask");
+			is.setItemMeta(im);
+			return is;
+		}
+		else{
+			ItemStack is = new ItemStack(Material.CARPET, 1, (short) 9);
+			ItemMeta im = is.getItemMeta();
+			im.setDisplayName(ChatColor.AQUA + "Skullfire's Mask");
+			is.setItemMeta(im);
+			return is;
+		}
 	}
 
 	@Override
@@ -100,6 +111,7 @@ public class Skullfire extends Hero {
 		lore.add(ChatColor.GRAY + "fire a triple-shot. Damage is");
 		lore.add(ChatColor.GRAY + "reduced at longer range.");
 		im.setLore(lore);
+		im.addItemFlags(new ItemFlag[] { ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE });
 		is.setItemMeta(im);
 		return is;
 	}
@@ -119,6 +131,7 @@ public class Skullfire extends Hero {
 		lore.add(ChatColor.GRAY + "grenade that will explode");
 		lore.add(ChatColor.GRAY + "instantly upon impact with a");
 		lore.add(ChatColor.GRAY + "player or a block.");
+		im.addItemFlags(new ItemFlag[] { ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE });
 		im.setLore(lore);
 		is.setItemMeta(im);
 		return is;

@@ -25,7 +25,7 @@ public class SmashMasterSkinCommand extends SCommand {
 							n.sendEquipmentPacket(p, ms);
 						}
 					} else {
-						sender.sendMessage("Usage: /smash <true/false>");
+						sender.sendMessage("Usage: /masterskin <true/false>");
 					}
 				} else {
 					sender.sendMessage("You don't have the permission to do this command");

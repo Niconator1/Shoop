@@ -42,8 +42,10 @@ public class NPC {
 	private String signature;
 	private String sound;
 	private Inventory i;
+	private String name;
 
-	public NPC(String name, Location location, float headrot, String value, String signature, String sound) {
+	public NPC(String name, Location location, float headrot, String value, String signature, String sound,
+			String heroname) {
 		entityID = (int) Math.ceil(Math.random() * 1000) + 2000;
 		nameID = entityID + 1;
 		gameprofile = new GameProfile(UUID.randomUUID(), name);
@@ -52,6 +54,7 @@ public class NPC {
 		this.signature = signature;
 		this.value = value;
 		this.sound = sound;
+		this.name = heroname;
 	}
 
 	public Location getLocation() {
@@ -113,7 +116,7 @@ public class NPC {
 		setValue(packet4, "k", getFixRotation(headrot));
 		DataWatcher w2 = new DataWatcher(null);
 		w2.a(0, (byte) 0x20);
-		w2.a(2, ChatColor.GREEN + "Shoop" + ChatColor.RESET);
+		w2.a(2, ChatColor.GREEN + name + ChatColor.RESET);
 		w2.a(3, (byte) 1);
 		w2.a(6, (float) 20);
 		setValue(packet4, "l", w2);

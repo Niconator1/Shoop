@@ -1,5 +1,5 @@
 name: Smashplex
-version: 0.5
+version: 0.6
 description: >
   A community recreation of the game smash heroes to improve balance and test new heroes
 
@@ -24,6 +24,8 @@ commands:
         description: Prepare for the awesome Botmobile
     masterskin:
         description: Toggle between normal and master skin npc
+    game:
+        description: Game control command
 permissions:
     smash.admin:
         default: false
@@ -34,6 +36,9 @@ permissions:
     smash.skull:
         default: false
         description: All rights for skullfire
+    smash.game:
+        default: false
+        description: All rights for utility commands
     smash.util:
         default: false
         description: All rights for utility commands

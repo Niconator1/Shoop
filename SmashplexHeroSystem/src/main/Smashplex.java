@@ -31,6 +31,7 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<Cooldown> cooldown = new ArrayList<Cooldown>();
 	public static ArrayList<NPC> npcs = new ArrayList<NPC>();
 	public static ArrayList<Botmobile> bm = new ArrayList<Botmobile>();
+	public static ArrayList<Game> gamelist = new ArrayList<Game>();
 	public static boolean smash = true;
 	public static Objective obj;
 	public static Team team;
@@ -112,6 +113,7 @@ public class Smashplex extends JavaPlugin {
 			team.setNameTagVisibility(NameTagVisibility.NEVER);
 		}
 		NPCRegistry.registerShoop();
+		NPCRegistry.registerSkullfire();
 	}
 
 	public static SmashPlayer getSmashPlayer(Player p) {
@@ -242,6 +244,17 @@ public class Smashplex extends JavaPlugin {
 				}
 			}
 		}, 0, 1);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+				// Game start
+				for (int i = 0; i < gamelist.size(); i++) {
+					Game g = gamelist.get(i);
+					if (g.isFull() && !g.isRunning()) {
+						g.start();
+					}
+				}
+			}
+		}, 0, 1);
 
 	}
 
@@ -279,6 +292,26 @@ public class Smashplex extends JavaPlugin {
 			}
 		}
 		return true;
+	}
+
+	public static Game getGame(Player p) {
+		for (int i = 0; i < gamelist.size(); i++) {
+			Game g = gamelist.get(i);
+			if (g.hasPlayer(p)) {
+				return g;
+			}
+		}
+		return null;
+	}
+
+	public static Game getFreeGame() {
+		for (int i = 0; i < gamelist.size(); i++) {
+			Game g = gamelist.get(i);
+			if (!g.isFull() && !g.isRunning()) {
+				return g;
+			}
+		}
+		return null;
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
