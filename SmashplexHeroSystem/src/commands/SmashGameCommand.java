@@ -27,7 +27,7 @@ public class SmashGameCommand extends SCommand {
 								if (g != null) {
 									g.join(p);
 								} else {
-									Game ng = new Game("Kingdom", 2);
+									Game ng = new Game(MapRegistry.getRandomMap());
 									ng.join(p);
 									Smashplex.gamelist.add(ng);
 								}

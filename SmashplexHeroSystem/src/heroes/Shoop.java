@@ -263,7 +263,6 @@ public class Shoop extends Hero {
 					}
 				}
 			}
-			charges = 0;
 			getPlayer().getInventory().setItem(1, getSecondary(0.0));
 			b = getPlayer().getEyeLocation();
 			v.normalize().multiply(0.1);
@@ -309,7 +308,6 @@ public class Shoop extends Hero {
 													}
 												}
 											}
-											break;
 										}
 									}
 								}
@@ -317,6 +315,7 @@ public class Shoop extends Hero {
 						}
 					}
 				}
+				charges = 0;
 			}
 		}
 	}

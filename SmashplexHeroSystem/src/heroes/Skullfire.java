@@ -57,8 +57,7 @@ public class Skullfire extends Hero {
 			im.setDisplayName(ChatColor.AQUA + "Skullfire's Mask");
 			is.setItemMeta(im);
 			return is;
-		}
-		else{
+		} else {
 			ItemStack is = new ItemStack(Material.CARPET, 1, (short) 9);
 			ItemMeta im = is.getItemMeta();
 			im.setDisplayName(ChatColor.AQUA + "Skullfire's Mask");
@@ -141,18 +140,23 @@ public class Skullfire extends Hero {
 	public ItemStack getSmash(double loaded) {
 		ItemStack is = new ItemStack(Material.IRON_SPADE, 1, (short) (250 - (int) (loaded * 250.0 + 0.5)));
 		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.RED + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+		im.setDisplayName(ChatColor.RED + "Flaming Deagle " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
 		if (loaded >= 1.0) {
 			is = new ItemStack(Material.INK_SACK, 1, (short) 14);
-			im.setDisplayName(ChatColor.GREEN + "FIRIN' MAH LAZOR " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
+			im.setDisplayName(ChatColor.GREEN + "Flaming Deagle " + ChatColor.GRAY + "-" + ChatColor.AQUA + " [3]");
 			im.addEnchant(Enchantment.OXYGEN, 1, false);
 			im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add(ChatColor.GRAY + "Smash Ability");
 		lore.add("");
-		lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [3]" + ChatColor.GRAY + " to unleash");
-		lore.add(ChatColor.GRAY + "a devastating lazor.");
+		lore.add(ChatColor.GRAY + "Press" + ChatColor.AQUA + " [3]" + ChatColor.GRAY + " to ");
+		lore.add(ChatColor.GRAY + "transform your Deagle into a ");
+		lore.add(ChatColor.GRAY + "Flaming Deagle for " + ChatColor.GREEN + "10 ");
+		lore.add(ChatColor.GRAY + "seconds, or until it runs out of ");
+		lore.add(ChatColor.GRAY + "ammo. Bullets will deal double ");
+		lore.add(ChatColor.GRAY + "damage, explode on contact, and ");
+		lore.add(ChatColor.GRAY + "the clip size is increased.");
 		im.setLore(lore);
 		is.setItemMeta(im);
 		return is;
@@ -163,7 +167,7 @@ public class Skullfire extends Hero {
 
 	@Override
 	public void doPrimary() {
-		if (bullets > 0 && System.currentTimeMillis() - getLastShotTime() > 200) {
+		if (bullets > 0 && System.currentTimeMillis() - getLastShotTime() > 500) {
 			if (getPlayer().isSneaking()) {
 				if (bullets > 1) {
 					doShot(false);
@@ -278,12 +282,10 @@ public class Skullfire extends Hero {
 															flamejumps++;
 														}
 													}
-													flamejumps++;
 													getPlayer().setAllowFlight(true);
 												}
 											}
 										}
-										break;
 									}
 								}
 							}

@@ -4,32 +4,26 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import util.TextUtil;
 
 public class Game {
-	private String map = "";
+	private Map map;
 	private ArrayList<Player> list = new ArrayList<Player>();
 	private boolean countdowndone = false;
 	private boolean hasStarted = false;
-	private int maxplayers;
-	private Location[] pos = { new Location(Bukkit.getWorld("Kingdom"), 1, 62, -21),
-			new Location(Bukkit.getWorld("Kingdom"), 25, 63, -2), new Location(Bukkit.getWorld("Kingdom"), -1, 63, -22),
-			new Location(Bukkit.getWorld("Kingdom"), -24, 63, 4) };
 
-	public Game(String map, int maxplayers) {
+	public Game(Map map) {
 		this.map = map;
-		this.maxplayers = maxplayers;
 	}
 
 	public void join(Player p) {
 		list.add(p);
 		sendGameMessage(p.getName() + ChatColor.YELLOW + " has joined (" + ChatColor.AQUA + list.size()
-				+ ChatColor.YELLOW + "/" + ChatColor.AQUA + maxplayers + ChatColor.YELLOW + ")");
-		p.teleport(new Location(Bukkit.getWorld("Kingdom"), 0, 84, 0));
+				+ ChatColor.YELLOW + "/" + ChatColor.AQUA + map.getMaxPlayerCount() + ChatColor.YELLOW + ")");
+		p.teleport(map.getLobbyLocation());
 	}
 
 	private void sendGameMessage(String string) {
@@ -50,12 +44,8 @@ public class Game {
 		}
 	}
 
-	public int getMaxPlayers() {
-		return maxplayers;
-	}
-
 	public String getMapName() {
-		return map;
+		return map.getName();
 	}
 
 	int x = 0;
@@ -68,19 +58,20 @@ public class Game {
 				new Runnable() {
 					public void run() {
 						if (y > 0) {
-							if (list.size() < maxplayers) {
+							if (list.size() < map.getMaxPlayerCount()) {
 								sendGameMessage(ChatColor.RED + "Cancelling starting countdown, not enough players!");
 								hasStarted = false;
 								Bukkit.getServer().getScheduler().cancelTask(x);
 							}
 							for (int i = 0; i < list.size(); i++) {
 								Player p = list.get(i);
-								TextUtil.sendTitle(p, ChatColor.YELLOW + "Game starting in...", 0, 20, 0);
-								TextUtil.sendSubTitle(p, ChatColor.YELLOW + "" + y, 0, 20, 0);
+								TextUtil.sendTitle(p, ChatColor.YELLOW + "Game starting in...");
+								TextUtil.sendSubTitle(p, ChatColor.YELLOW + "" + y);
+								TextUtil.sendTitleTime(p, 0, 25, 5);
 							}
 							y--;
 						} else {
-							if (list.size() < maxplayers) {
+							if (list.size() < map.getMaxPlayerCount()) {
 								sendGameMessage(ChatColor.RED + "Cancelling starting countdown, not enough players!");
 								hasStarted = false;
 							} else {
@@ -88,7 +79,7 @@ public class Game {
 								countdowndone = true;
 								for (int i = 0; i < list.size(); i++) {
 									Player p = list.get(i);
-									p.teleport(pos[i]);
+									p.teleport(map.getSpawnPositions()[i]);
 								}
 							}
 
@@ -117,7 +108,7 @@ public class Game {
 	}
 
 	public boolean isFull() {
-		if (list.size() == maxplayers) {
+		if (list.size() >= map.getMaxPlayerCount()) {
 			return true;
 		}
 		return false;

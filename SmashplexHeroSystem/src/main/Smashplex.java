@@ -18,6 +18,7 @@ import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
+import commands.MapRegistry;
 import heroes.HeroLoops;
 import heroes.Skullfire;
 import util.SoundUtil;
@@ -32,6 +33,7 @@ public class Smashplex extends JavaPlugin {
 	public static ArrayList<NPC> npcs = new ArrayList<NPC>();
 	public static ArrayList<Botmobile> bm = new ArrayList<Botmobile>();
 	public static ArrayList<Game> gamelist = new ArrayList<Game>();
+	public static ArrayList<Map> maplist = new ArrayList<Map>();
 	public static boolean smash = true;
 	public static Objective obj;
 	public static Team team;
@@ -45,6 +47,7 @@ public class Smashplex extends JavaPlugin {
 		HeroLoops.loopsSkullfire();
 		HeroLoops.loopsShoop();
 		SmashCommands.registerCommands();
+		MapRegistry.registerMaps();
 		registerLobbyNPCs();
 		if (getServer().getPluginManager().getPlugin("ProtocolLib") != null) {
 			nmanager = new NetworkManager();
@@ -187,8 +190,8 @@ public class Smashplex extends JavaPlugin {
 									if (sp.getSelectedHero() != null) {
 										p.getInventory().setItem(2, sp.getSelectedHero().getSmash(1.0));
 										TextUtil.sendSubTitle(p,
-												ChatColor.GREEN + "SMASH READY! " + ChatColor.AQUA + "Press [3]", 0, 30,
-												0);
+												ChatColor.GREEN + "SMASH READY! " + ChatColor.AQUA + "Press [3]");
+										TextUtil.sendTitleTime(p, 0, 25, 5);
 										SoundUtil.sendSoundPacket(p, "mob.wither.spawn", p.getLocation(), 2f);
 									}
 								}

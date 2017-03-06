@@ -126,7 +126,7 @@ public class ShoopLazor {
 			}
 		}
 		long time = Math.round(ticks / 20.0);
-		TextUtil.sendTitle(shoop, "", 0, 0, 0);
-		TextUtil.sendSubTitle(shoop, ChatColor.DARK_RED + "" + time + "s", 0, 20, 0);
+		TextUtil.sendSubTitle(shoop, ChatColor.DARK_RED + "" + time + "s");
+		TextUtil.sendTitleTime(shoop, 0, 25, 5);
 	}
 }

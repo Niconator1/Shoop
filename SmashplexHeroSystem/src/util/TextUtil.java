@@ -39,21 +39,27 @@ public class TextUtil {
 		}
 	}
 
-	public static void sendTitle(Player player, String title, int fadeIn, int stay, int fadeOut) {
+	public static void sendTitle(Player player, String title) {
 		CraftPlayer craftplayer = (CraftPlayer) player;
 		PlayerConnection connection = craftplayer.getHandle().playerConnection;
 		IChatBaseComponent titleJSON = ChatSerializer.a("{'text': '" + title + "'}");
-		PacketPlayOutTitle titlePacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleJSON, fadeIn, stay,
-				fadeOut);
+		PacketPlayOutTitle titlePacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleJSON);
 		connection.sendPacket(titlePacket);
+
 	}
 
-	public static void sendSubTitle(Player player, String subtitle, int fadeIn, int stay, int fadeOut) {
+	public static void sendTitleTime(Player player, int fadeIn, int stay, int fadeOut) {
+		CraftPlayer craftplayer = (CraftPlayer) player;
+		PlayerConnection connection = craftplayer.getHandle().playerConnection;
+		PacketPlayOutTitle timerPacket = new PacketPlayOutTitle(fadeIn, stay, fadeOut);
+		connection.sendPacket(timerPacket);
+	}
+
+	public static void sendSubTitle(Player player, String subtitle) {
 		CraftPlayer craftplayer = (CraftPlayer) player;
 		PlayerConnection connection = craftplayer.getHandle().playerConnection;
 		IChatBaseComponent subtitleJSON = ChatSerializer.a("{'text': '" + subtitle + "'}");
-		PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON, fadeIn, stay,
-				fadeOut);
+		PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON);
 		connection.sendPacket(subtitlePacket);
 	}
 }
