@@ -105,6 +105,7 @@ public class SmashPlayer {
 		p.setAllowFlight(true);
 		p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
 		p.setWalkSpeed(0.4f);
+		p.getInventory().setHeldItemSlot(0);
 		h.giveItems();
 		Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
 		Smashplex.cooldown.add(c);

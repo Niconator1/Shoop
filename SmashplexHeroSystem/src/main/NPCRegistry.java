@@ -23,7 +23,7 @@ public class NPCRegistry {
 				new Location(Bukkit.getWorld("lobby"), 839.5, 39.5, 62.5, 82.96875f, 7.03125f), 82.96875f,
 				"eyJ0aW1lc3RhbXAiOjE0NDMyMzE4ODgzNDksInByb2ZpbGVJZCI6ImFhZDIzYTUwZWVkODQ3MTA5OWNmNjRiZThmZjM0ZWY0IiwicHJvZmlsZU5hbWUiOiIxUm9ndWUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2UwMjE2MTJlMjEwNDZkNDY4OGIyMjhjYjM3MDJiYjZhZWM3YTA4Yjc4YjBmNTYwMTljMDRmYWUyYWQyOTQyZCJ9fX0=",
 				"yRVtcYcMOKmDtUkY0c1ruzkJQVswrCExRrG8He5qKUltUT1RI+CMlhjovdEfxfwXRXWQz9BTmfrVlhEwBu7NIfWfimj8twotmGgcJ4ZLSGlkyc/VMwrIMUKzZowvIObQqEWenBQYW3uSfYKFStyi6jCzNOmY4fkCc3VVPBGKKdXOVWo9vGVg63tUjLJZlBSL9r0Cr6IUn7lAQg7cGwGxyikh6/B6tCrpr8/ssJJWJnyDw/rcwnbALJfZVvxAEipA3qA47u3FUntN0CNQIzdVi/y+nNRH+jmyDmV5CSDGELCODrXF1ll/R5gYKn3ZJuSBuY6PjdvpDBr9EeKhD7EFNjTrMqIUoWu+KX6hzwA8DVK2EPn4ZXk31siHQz1L6vd37Y8s8V5fqYj0293frhJ3aiOoUhH5tmfcpV0k7Vdpp2RQVdJk+cHO3t0I6vvroNKoD+pbk8FqA1BxLH4oM8fX4J6Dfk0jFTGSDFdoIp2As8q34ZZrZoTSOf36Hm8tAmXNi0cqxANwQ5zyA9467MDLncTcCWn1NsU1W7KPBBY7mQf4VOhi2zFYKdB2rYMbxbbQ2dGWdUcZFqPmj2DLx/k0HkNiEVOZyxnvuKWydA+L+T+36zHFbs3mo5P414/yI/Zwwxx0xRhE1FIorqj2OphSkmMS4wBzLt96tJjAsaV8af8=",
-				"ShoopDaWhoop.select","Shoop");
+				"ShoopDaWhoop.select", "Shoop");
 		Shoop npc = new Shoop(null, false);
 		Smashplex.team.addEntry("i13u1i3u12i3u1");
 		shoop.setItemStack(0, npc.getPrimary(0));
@@ -73,6 +73,52 @@ public class NPCRegistry {
 		im4.setLore(lore4);
 		passive.setItemMeta(im4);
 		invshoop.setItem(25, passive);
+		ItemStack hint1 = new ItemStack(Material.SAPLING, 1, (short) 3);
+		ItemMeta imHT1 = hint1.getItemMeta();
+		imHT1.setDisplayName(ChatColor.YELLOW + "Hints & Tips");
+		List<String> loreHT1 = new ArrayList<String>();
+		loreHT1.add(ChatColor.YELLOW + "#1" + ChatColor.GREEN + " Lightning Bolt" + ChatColor.GRAY + " pierces");
+		loreHT1.add(ChatColor.GRAY + "through enemies, allowing you to");
+		loreHT1.add(ChatColor.GRAY + "hit more than one per activation.");
+		loreHT1.add(ChatColor.GRAY + "Try and use that to your advantage");
+		loreHT1.add(ChatColor.GRAY + "to gain charges for" + ChatColor.GREEN + " Charged");
+		loreHT1.add(ChatColor.GREEN + "Lazor " + ChatColor.GRAY + "faster.");
+		imHT1.setLore(loreHT1);
+		hint1.setItemMeta(imHT1);
+		invshoop.setItem(28, hint1);
+		ItemStack hint2 = new ItemStack(Material.SAPLING, 1, (short) 3);
+		ItemMeta imHT2 = hint2.getItemMeta();
+		imHT2.setDisplayName(ChatColor.YELLOW + "Hints & Tips");
+		List<String> loreHT2 = new ArrayList<String>();
+		loreHT2.add(ChatColor.YELLOW + "#1" + ChatColor.GREEN + " Charged Lazor" + ChatColor.GRAY + " can hit");
+		loreHT2.add(ChatColor.GRAY + "multiple enemies if they're lined");
+		loreHT2.add(ChatColor.GRAY + "up in front of you. Try and");
+		loreHT2.add(ChatColor.GRAY + "position yourself accordingly");
+		loreHT2.add(ChatColor.GRAY + "");
+		loreHT2.add(ChatColor.YELLOW + "#2" + ChatColor.GRAY + " The amount of charges you");
+		loreHT2.add(ChatColor.GRAY + "have is displayed on the ability's");
+		loreHT2.add(ChatColor.GRAY + "icon on your hotbar.");
+		imHT2.setLore(loreHT2);
+		hint2.setItemMeta(imHT2);
+		invshoop.setItem(30, hint2);
+		ItemStack hint3 = new ItemStack(Material.SAPLING, 1, (short) 3);
+		ItemMeta imHT3 = hint3.getItemMeta();
+		imHT3.setDisplayName(ChatColor.YELLOW + "Hints & Tips");
+		List<String> loreHT3 = new ArrayList<String>();
+		loreHT3.add(ChatColor.YELLOW + "#1" + ChatColor.GRAY + " As a" + ChatColor.AQUA + " RANGED" + ChatColor.GRAY
+				+ " hero, hitting an");
+		loreHT3.add(
+				ChatColor.GRAY + "enemy with your Right Click ability will reduce your" + ChatColor.GOLD + " Smash");
+		loreHT3.add(ChatColor.GOLD + "Ability" + ChatColor.GRAY + "'s cooldown by " + ChatColor.GREEN + (int)heroes.SHOOPBOLTSMASHREDUCTION/20
+				+ ChatColor.GRAY + " seconds.");
+		loreHT3.add(ChatColor.GRAY + "");
+		loreHT3.add(ChatColor.YELLOW + "#2" + ChatColor.GRAY + " Picking up the" + ChatColor.GOLD + " Smash Crystal");
+		loreHT3.add(ChatColor.GRAY + "that occasionally appears during a");
+		loreHT3.add(ChatColor.GRAY + "match will instantly reset your");
+		loreHT3.add(ChatColor.GOLD + "Smash Ability" + ChatColor.GRAY + "'s cooldown.");
+		imHT3.setLore(loreHT3);
+		hint3.setItemMeta(imHT3);
+		invshoop.setItem(32, hint3);
 		shoop.setInventory(invshoop);
 		npc.setMasterSkin(true);
 		shoop.setMasterItemStack(0, npc.getPrimary(0));
@@ -88,7 +134,7 @@ public class NPCRegistry {
 				new Location(Bukkit.getWorld("lobby"), 837.5, 38.0, 61.5, 78.75f, 2.8125f), 78.75f,
 				"eyJ0aW1lc3RhbXAiOjE0NDMyMzE0ODAwNjcsInByb2ZpbGVJZCI6ImFhZDIzYTUwZWVkODQ3MTA5OWNmNjRiZThmZjM0ZWY0IiwicHJvZmlsZU5hbWUiOiIxUm9ndWUiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzIzM2MzNjc4NzE0OTkwMTljN2VhODE0MDVmMjFiZTIxOWYxMTdiNWRlOTJhMTJjZGM0MTYyYjVmNDU2MjgifX19",
 				"rATSuQGB08cHObRNkrbxhstlTwGniVLpGwkkj3OiMGgjs7XtAuivG2avUifioh48scH8uR3x/VvTRmpNKncl309m67nujzHyNpCtlRNYaKnKGuwOJaNuIv1XGmY+iwgWA/Z0rsnBTN6to7W5T1kbm7uMdHha+4huryJwdWLqxObkiFg0BhJ3DCsNoHycSq6D6Zyny4WEISEZejXi/GclGawzhrbePJHJ/WEzj+SNbUY1f2ydSMq2axH6KL9F7ULtR7F5ETMnoiPYg8r3/0D/toWkk/gNE6ol75JZvfn45LS9UbtK9LCDY17Sr2Ov+b2YBLDbluz45kp2xJM5inSQ59XOqDEWO2LQhvVkiy8GYLM50uSunfE2RYSXjgPTdLfP3P7kDV2z1hlPLxqHlzLjrBxUZ6DthYjxXPZFBsr0UEuJAiEi/jqfbSUfLYl0ly2jABQ45wD+iPIAa1MJ1dZsWUUpxoCPIC+FogASOKBtkycGwGBj1EYQNU/CXngkTplkgTqtRTDvu7oyrwGAnqq8zRvKvQTVEqjIpBB8+v3Tp6L1wBGXJuE36G3HKJMdwfMw85aH/qzUbcdtr6YQbNy66x8XGYiv8e3CKxOSGUAmsFTEGlV5eIJKQeyieA3o4Fn268McS81X/1iYxQdR1goEcDOIy/dqKOS7es4ZfwS6uCA=",
-				"Skullfire.select","Skullfire");
+				"Skullfire.select", "Skullfire");
 		Skullfire npc = new Skullfire(null, false);
 		Smashplex.team.addEntry("i24u2i4u23i4u2");
 		skullfire.setItemStack(0, npc.getPrimary(0));

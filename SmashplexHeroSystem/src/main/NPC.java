@@ -129,14 +129,14 @@ public class NPC {
 				if (msinventory[i] != null) {
 					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i,
 							msinventory[i]);
-					sendPacket(packet2);
+					sendPacket(packet2, p);
 				}
 			}
 		} else {
 			for (int i = 0; i < inventory.length; i++) {
 				if (inventory[i] != null) {
 					PacketPlayOutEntityEquipment packet2 = new PacketPlayOutEntityEquipment(entityID, i, inventory[i]);
-					sendPacket(packet2);
+					sendPacket(packet2, p);
 				}
 			}
 		}

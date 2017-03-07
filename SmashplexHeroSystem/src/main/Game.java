@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 
 import util.TextUtil;
 
@@ -57,12 +59,30 @@ public class Game {
 		x = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Smashplex.class),
 				new Runnable() {
 					public void run() {
-						if (y > 0) {
-							if (list.size() < map.getMaxPlayerCount()) {
-								sendGameMessage(ChatColor.RED + "Cancelling starting countdown, not enough players!");
-								hasStarted = false;
-								Bukkit.getServer().getScheduler().cancelTask(x);
+						if (list.size() < map.getMaxPlayerCount()) {
+							for (int i = 0; i < list.size(); i++) {
+								Player p = list.get(i);
+								p.teleport(map.getLobbyLocation());
 							}
+							sendGameMessage(ChatColor.RED + "Cancelling starting countdown, not enough players!");
+							hasStarted = false;
+							Bukkit.getServer().getScheduler().cancelTask(x);
+							return;
+						}
+						for (int i = 0; i < list.size(); i++) {
+							Player p = list.get(i);
+							Location neu = map.getSpawnPositions()[i].clone();
+							neu.setYaw(p.getLocation().getYaw());
+							neu.setPitch(p.getLocation().getPitch());
+							p.teleport(neu);
+							p.setVelocity(new Vector(0, 0, 0));
+							if (y > 0) {
+								p.setWalkSpeed(0.0f);
+							} else {
+								p.setWalkSpeed(0.4f);
+							}
+						}
+						if (y > 0) {
 							for (int i = 0; i < list.size(); i++) {
 								Player p = list.get(i);
 								TextUtil.sendTitle(p, ChatColor.YELLOW + "Game starting in...");
@@ -71,18 +91,8 @@ public class Game {
 							}
 							y--;
 						} else {
-							if (list.size() < map.getMaxPlayerCount()) {
-								sendGameMessage(ChatColor.RED + "Cancelling starting countdown, not enough players!");
-								hasStarted = false;
-							} else {
-								sendGameMessage(ChatColor.YELLOW + "The game has started");
-								countdowndone = true;
-								for (int i = 0; i < list.size(); i++) {
-									Player p = list.get(i);
-									p.teleport(map.getSpawnPositions()[i]);
-								}
-							}
-
+							sendGameMessage(ChatColor.YELLOW + "The game has started");
+							countdowndone = true;
 							Bukkit.getServer().getScheduler().cancelTask(x);
 						}
 					}
