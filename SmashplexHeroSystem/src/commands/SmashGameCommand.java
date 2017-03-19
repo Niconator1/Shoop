@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import main.Game;
+import main.MapRegistry;
 import main.Smashplex;
 
 public class SmashGameCommand extends SCommand {

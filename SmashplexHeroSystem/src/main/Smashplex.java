@@ -18,7 +18,6 @@ import abilities.Cooldown;
 import abilities.Grenade;
 import abilities.Lightningbolt;
 import abilities.ShoopLazor;
-import commands.MapRegistry;
 import heroes.HeroLoops;
 import heroes.Skullfire;
 import util.SoundUtil;
@@ -57,6 +56,9 @@ public class Smashplex extends JavaPlugin {
 		}
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			SmashPlayer sp = new SmashPlayer(p, 100);
+			if (!sp.firstJoin()) {
+				sp.readData();
+			}
 			Smashplex.players.add(sp);
 			for (int i = 0; i < npcs.size(); i++) {
 				NPC n = npcs.get(i);
@@ -78,15 +80,7 @@ public class Smashplex extends JavaPlugin {
 		this.getLogger().info("Smashplex disabled");
 		for (int i = 0; i < players.size(); i++) {
 			SmashPlayer sp = players.get(i);
-			if (sp.getSelectedHero() != null) {
-				sp.resetHero();
-				for (int j = 0; j < cooldown.size(); j++) {
-					Cooldown c = cooldown.get(j);
-					if (c.getPlayer().getUniqueId().compareTo(sp.getPlayer().getUniqueId()) == 0) {
-						cooldown.remove(j);
-					}
-				}
-			}
+			sp.saveData();
 		}
 		for (int i = 0; i < bolt.size(); i++) {
 			bolt.get(i).getStand().die();
@@ -103,6 +97,10 @@ public class Smashplex extends JavaPlugin {
 		for (int i = 0; i < npcs.size(); i++) {
 			NPC n = npcs.get(i);
 			n.destroyGlobal();
+		}
+		for (int i = 0; i < gamelist.size(); i++) {
+			Game g = gamelist.get(i);
+			g.disband();
 		}
 	}
 
@@ -208,12 +206,15 @@ public class Smashplex extends JavaPlugin {
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					SmashPlayer sp = getSmashPlayer(p);
 					if (sp != null) {
-						if (sp.getSelectedHero() != null) {
-							if (sp.getSelectedHero().getNumber() != 1) {
-								if (p.getLevel() < 100) {
-									p.setLevel(p.getLevel() + 1);
-									float pro = p.getLevel() / (100 + 0.000001f);
-									p.setExp(pro);
+						Game g = getGame(p);
+						if (g != null && g.hasBegan()) {
+							if (sp.getSelectedHero() != null) {
+								if (sp.getSelectedHero().getNumber() != 1) {
+									if (p.getLevel() < 100) {
+										p.setLevel(p.getLevel() + 1);
+										float pro = p.getLevel() / (100 + 0.000001f);
+										p.setExp(pro);
+									}
 								}
 							}
 						}

@@ -1,7 +1,16 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -91,24 +100,36 @@ public class SmashPlayer {
 		return maxhp;
 	}
 
-	public void selectHero(int i) {
+	public void selectHero(int i, boolean prepare) {
+		p.getInventory().clear();
 		switch (i) {
 		case 1:
 			h = new Skullfire(p, false);
 			SoundUtil.sendSoundPacket(p, "Skullfire.select", p.getLocation());
 			break;
-		default:
+		case 0:
 			h = new Shoop(p, false);
 			SoundUtil.sendSoundPacket(p, "ShoopDaWhoop.select", p.getLocation());
 			break;
+		default:
+			break;
 		}
-		p.setAllowFlight(true);
-		p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
-		p.setWalkSpeed(0.4f);
-		p.getInventory().setHeldItemSlot(0);
-		h.giveItems();
-		Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
-		Smashplex.cooldown.add(c);
+		if (h != null && prepare) {
+			preparePlayer();
+		}
+	}
+
+	public void preparePlayer() {
+		if (h != null) {
+			p.setAllowFlight(true);
+			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
+			p.setWalkSpeed(0.4f);
+			p.getInventory().setHeldItemSlot(0);
+			h.initialize();
+			h.giveItems();
+			Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
+			Smashplex.cooldown.add(c);
+		}
 	}
 
 	public void resetHero() {
@@ -121,6 +142,67 @@ public class SmashPlayer {
 		}
 		h.resetHero();
 		h = null;
+	}
+
+	public int getSelectedNumber() {
+		if (h != null) {
+			return h.getNumber();
+		}
+		return -1;
+	}
+
+	public boolean firstJoin() {
+		File f = new File(
+				Smashplex.getPlugin(Smashplex.class).getDataFolder() + "/players/" + p.getUniqueId() + ".txt");
+		if (f.exists()) {
+			return false;
+		}
+		return true;
+	}
+
+	public void readData() {
+		try {
+			BufferedReader is = new BufferedReader(new InputStreamReader(new FileInputStream(
+					Smashplex.getPlugin(Smashplex.class).getDataFolder() + "/players/" + p.getUniqueId() + ".txt")));
+			while (is.ready()) {
+				String param = is.readLine();
+				param = param.substring(1, param.length() - 1);
+				String[] parts = param.split(",");
+				if (parts.length > 0) {
+					selectHero(Integer.parseInt(parts[0]), false);
+				}
+			}
+			is.close();
+		} catch (Exception e) {
+			System.err.println("Fehler beim einlesen von Spielerdaten: " + p.getUniqueId());
+			e.printStackTrace();
+		}
+	}
+
+	public void saveData() {
+		File f = new File(
+				Smashplex.getPlugin(Smashplex.class).getDataFolder() + "/players/" + p.getUniqueId() + ".txt");
+		if (!f.exists()) {
+			try {
+				f.getParentFile().mkdirs();
+				f.createNewFile();
+			} catch (IOException e) {
+				System.err.println("Fehler beim erstellen von Spielerdaten: " + p.getUniqueId());
+				e.printStackTrace();
+			}
+		}
+		try {
+			BufferedWriter os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
+			String s = "{";
+			s += getSelectedNumber() + "";
+			// s += wp.getMode() + ",";
+			s += "}";
+			os.write(s + "\n");
+			os.flush();
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -21,7 +21,7 @@ public class SmashShoopCommand extends SCommand {
 					SmashPlayer sp = Smashplex.getSmashPlayer(p);
 					if (sp != null) {
 						if (sp.getSelectedHero() == null) {
-							sp.selectHero(0);
+							sp.selectHero(0,false);
 							sender.sendMessage("You selected shoop");
 							return true;
 						} else {

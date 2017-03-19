@@ -42,6 +42,12 @@ public class Game {
 				list.remove(i);
 				sendGameMessage(p.getName() + ChatColor.YELLOW + " has quit");
 				t.teleport(Bukkit.getWorld("lobby").getSpawnLocation());
+				SmashPlayer sp = Smashplex.getSmashPlayer(p);
+				if (sp != null) {
+					if (sp.getSelectedHero() != null) {
+						sp.resetHero();
+					}
+				}
 			}
 		}
 	}
@@ -93,6 +99,13 @@ public class Game {
 						} else {
 							sendGameMessage(ChatColor.YELLOW + "The game has started");
 							countdowndone = true;
+							for (int i = 0; i < list.size(); i++) {
+								Player p = list.get(i);
+								SmashPlayer sp = Smashplex.getSmashPlayer(p);
+								if (sp != null) {
+									sp.preparePlayer();
+								}
+							}
 							Bukkit.getServer().getScheduler().cancelTask(x);
 						}
 					}
@@ -122,5 +135,12 @@ public class Game {
 			return true;
 		}
 		return false;
+	}
+
+	public void disband() {
+		for (int i = 0; i < list.size(); i++) {
+			Player p = list.get(i);
+			leave(p);
+		}
 	}
 }

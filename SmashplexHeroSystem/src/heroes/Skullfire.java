@@ -41,9 +41,12 @@ public class Skullfire extends Hero {
 
 	public Skullfire(Player p, boolean ms) {
 		super(p, "Skullfire", smashticks, 1, ms);
-		if (p != null) {
-			Cooldown c = new Cooldown(p, 0, -1);
-			Cooldown c2 = new Cooldown(p, 1, -1);
+	}
+	@Override
+	public void initialize() {
+		if (getPlayer() != null) {
+			Cooldown c = new Cooldown(getPlayer(), 0, -1);
+			Cooldown c2 = new Cooldown(getPlayer(), 1, -1);
 			TextUtil.sendCooldownMessage(c);
 			Smashplex.cooldown.add(c2);
 		}

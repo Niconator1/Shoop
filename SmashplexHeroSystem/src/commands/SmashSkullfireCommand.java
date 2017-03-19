@@ -21,7 +21,7 @@ public class SmashSkullfireCommand extends SCommand {
 					SmashPlayer sp = Smashplex.getSmashPlayer(p);
 					if (sp != null) {
 						if (sp.getSelectedHero() == null) {
-							sp.selectHero(1);
+							sp.selectHero(1,false);
 							sender.sendMessage("You selected skullfire");
 							return true;
 						} else {

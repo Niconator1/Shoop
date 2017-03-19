@@ -122,4 +122,8 @@ public abstract class Hero {
 		p.setExp(0);
 	}
 
+	public void initialize() {
+
+	}
+
 }

@@ -45,6 +45,9 @@ public class EventManager implements Listener {
 	public void onConnect(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 		SmashPlayer sp = new SmashPlayer(p, 100);
+		if (!sp.firstJoin()) {
+			sp.readData();
+		}
 		Smashplex.players.add(sp);
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
@@ -69,40 +72,44 @@ public class EventManager implements Listener {
 			SmashPlayer sp = Smashplex.getSmashPlayer(p);
 			if (sp != null) {
 				if (sp.getSelectedHero() != null) {
-					if (sp.getSelectedHero().getNumber() == 0) {
-						if (p.getLevel() >= heroes.SHOOPPASSIVEENERGY) {
-							p.setSneaking(false);
-							double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-							double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
-							double x = Math.sin(pitch) * Math.cos(yaw);
-							double y = Math.cos(pitch);
-							double z = Math.sin(pitch) * Math.sin(yaw);
-							Vector v = new Vector(x, y, z).multiply(heroes.SHOOPPASSIVESPEED);
-							Location l = p.getLocation();
-							double xo = Math.cos(yaw);
-							double zo = -Math.sin(yaw);
-							Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
-							l.add(vo.getX(), -0.3, vo.getZ());
-							SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
-							WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
-							ArmorStandM fn = new ArmorStandM(s, 0);
-							fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-							fn.noclip = true;
-							CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
-							fn.motX = v.getX();
-							fn.motY = v.getY();
-							fn.motZ = v.getZ();
-							an.setVisible(false);
-							an.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
-							an.setHeadPose(an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
-							s.addEntity(fn);
-							an.setPassenger(p);
-							Lightningbolt bolt = new Lightningbolt(fn, v, e.getPlayer(), l, true);
-							Smashplex.bolt.add(bolt);
-							p.setLevel(p.getLevel() - heroes.SHOOPPASSIVEENERGY);
-							float pro = p.getLevel() / (100 + 0.000001f);
-							p.setExp(pro);
-							e.setCancelled(true);
+					Game g = Smashplex.getGame(p);
+					if (g != null && g.hasBegan()) {
+						if (sp.getSelectedHero().getNumber() == 0) {
+							if (p.getLevel() >= heroes.SHOOPPASSIVEENERGY) {
+								p.setSneaking(false);
+								double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+								double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+								double x = Math.sin(pitch) * Math.cos(yaw);
+								double y = Math.cos(pitch);
+								double z = Math.sin(pitch) * Math.sin(yaw);
+								Vector v = new Vector(x, y, z).multiply(heroes.SHOOPPASSIVESPEED);
+								Location l = p.getLocation();
+								double xo = Math.cos(yaw);
+								double zo = -Math.sin(yaw);
+								Vector vo = new Vector(zo, 0, xo).normalize().multiply(0.35);
+								l.add(vo.getX(), -0.3, vo.getZ());
+								SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.active", p.getLocation());
+								WorldServer s = ((CraftWorld) l.getWorld()).getHandle();
+								ArmorStandM fn = new ArmorStandM(s, 0);
+								fn.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+								fn.noclip = true;
+								CraftArmorStand an = (CraftArmorStand) fn.getBukkitEntity();
+								fn.motX = v.getX();
+								fn.motY = v.getY();
+								fn.motZ = v.getZ();
+								an.setVisible(false);
+								an.setHelmet(new ItemStack(Material.WOOL, 1, (short) 10));
+								an.setHeadPose(
+										an.getHeadPose().setX(p.getLocation().getPitch() / 90.0 * 0.5 * Math.PI));
+								s.addEntity(fn);
+								an.setPassenger(p);
+								Lightningbolt bolt = new Lightningbolt(fn, v, e.getPlayer(), l, true);
+								Smashplex.bolt.add(bolt);
+								p.setLevel(p.getLevel() - heroes.SHOOPPASSIVEENERGY);
+								float pro = p.getLevel() / (100 + 0.000001f);
+								p.setExp(pro);
+								e.setCancelled(true);
+							}
 						}
 					}
 				}
@@ -115,9 +122,7 @@ public class EventManager implements Listener {
 		Player p = event.getPlayer();
 		SmashPlayer sp = Smashplex.getSmashPlayer(p);
 		if (sp != null) {
-			if (sp.getSelectedHero() != null) {
-				sp.resetHero();
-			}
+			sp.saveData();
 			Smashplex.players.remove(sp);
 		}
 		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
@@ -195,7 +200,10 @@ public class EventManager implements Listener {
 				if (sp.getSelectedHero() != null) {
 					if (Smashplex.isPrimaryReady(p)) {
 						if (Smashplex.smash) {
-							sp.doPrimary();
+							Game g = Smashplex.getGame(p);
+							if (g != null && g.hasBegan()) {
+								sp.doPrimary();
+							}
 						}
 					}
 				}
@@ -225,7 +233,10 @@ public class EventManager implements Listener {
 					if (sp.getSelectedHero() != null) {
 						if (Smashplex.isPrimaryReady(p)) {
 							if (Smashplex.smash) {
-								sp.doPrimary();
+								Game g = Smashplex.getGame(p);
+								if (g != null && g.hasBegan()) {
+									sp.doPrimary();
+								}
 							}
 						} else {
 							if (sp.getSelectedHero().getNumber() == 1) {
@@ -321,44 +332,47 @@ public class EventManager implements Listener {
 		SmashPlayer sp = Smashplex.getSmashPlayer(p);
 		if (sp != null) {
 			if (sp.getSelectedHero() != null) {
-				if (event.getNewSlot() == 1) {
-					if (Smashplex.isSecondaryReady(p)) {
-						if (Smashplex.smash) {
-							sp.doSecondary();
-						}
-					} else {
-						for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-							Cooldown c = Smashplex.cooldown.get(i);
-							if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-								if (c.getSkill() == 1) {
-									long time = Math.round(c.getTicks() / 20.0);
-									p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
-											+ " seconds remaining");
+				Game g = Smashplex.getGame(p);
+				if (g != null && g.hasBegan()) {
+					if (event.getNewSlot() == 1) {
+						if (Smashplex.isSecondaryReady(p)) {
+							if (Smashplex.smash) {
+								sp.doSecondary();
+							}
+						} else {
+							for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+								Cooldown c = Smashplex.cooldown.get(i);
+								if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+									if (c.getSkill() == 1) {
+										long time = Math.round(c.getTicks() / 20.0);
+										p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
+												+ " seconds remaining");
+									}
 								}
 							}
 						}
-					}
 
-				} else if (event.getNewSlot() == 2) {
-					if (Smashplex.isSmashReady(p)) {
-						if (Smashplex.smash) {
-							sp.doSmash();
-						}
-					} else {
-						for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-							Cooldown c = Smashplex.cooldown.get(i);
-							if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-								if (c.getSkill() == 2) {
-									long time = Math.round(c.getTicks() / 20.0);
-									p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
-											+ " seconds remaining");
-									SoundUtil.sendSoundPacket(p, "SmashCrystal.notready", p.getLocation());
+					} else if (event.getNewSlot() == 2) {
+						if (Smashplex.isSmashReady(p)) {
+							if (Smashplex.smash) {
+								sp.doSmash();
+							}
+						} else {
+							for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+								Cooldown c = Smashplex.cooldown.get(i);
+								if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+									if (c.getSkill() == 2) {
+										long time = Math.round(c.getTicks() / 20.0);
+										p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
+												+ " seconds remaining");
+										SoundUtil.sendSoundPacket(p, "SmashCrystal.notready", p.getLocation());
+									}
 								}
 							}
 						}
 					}
+					p.getInventory().setHeldItemSlot(0);
 				}
-				p.getInventory().setHeldItemSlot(0);
 			}
 		}
 	}

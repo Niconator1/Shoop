@@ -35,8 +35,8 @@ public class SmashCommands {
 		commands.add(new SmashBotmobileCommand("botmobile", "smash.util"));
 		commands.add(new SmashShoopCommand("shoop", "smash.util"));
 		commands.add(new SmashSkullfireCommand("skullfire", "smash.util"));
-		commands.add(new SmashMasterSkinCommand("masterskin","smash.util"));
-		commands.add(new SmashGameCommand("game","smash.game"));
+		commands.add(new SmashMasterSkinCommand("masterskin", "smash.util"));
+		commands.add(new SmashGameCommand("game", "smash.game"));
 	}
 
 }
