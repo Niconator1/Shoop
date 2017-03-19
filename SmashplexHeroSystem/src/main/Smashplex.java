@@ -167,7 +167,7 @@ public class Smashplex extends JavaPlugin {
 								if (sp != null) {
 									if (sp.getSelectedHero().getNumber() == 1) {
 										Skullfire s = (Skullfire) sp.getSelectedHero();
-										s.setBullets(99);
+										s.setBullets(7);
 										p.getInventory().setItem(0, s.getPrimary(s.getBullets()));
 									}
 								}
