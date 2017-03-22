@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -381,6 +382,25 @@ public class EventManager implements Listener {
 	public void blockDamageEvent(EntityDamageEvent event) {
 		Entity entity = event.getEntity();
 		if (entity instanceof Player) {
+			Player p = (Player) entity;
+			if (event instanceof EntityDamageByEntityEvent) {
+				EntityDamageByEntityEvent e = (EntityDamageByEntityEvent) event;
+				Entity damager = e.getDamager();
+				if (damager instanceof Player) {
+					Player p2 = (Player) damager;
+					SmashPlayer sp = Smashplex.getSmashPlayer(p);
+					SmashPlayer enemy = Smashplex.getSmashPlayer(p2);
+					if (sp != null && enemy != null) {
+						if (sp.getSelectedHero() != null && enemy.getSelectedHero() != null) {
+							Game g = Smashplex.getGame(p);
+							if (g != null && g.hasBegan() && g.hasPlayer(p2)) {
+								double dmg = enemy.getSelectedHero().getMeleeDamage();
+								sp.damage(dmg);
+							}
+						}
+					}
+				}
+			}
 			event.setCancelled(true);
 		}
 	}
