@@ -61,11 +61,11 @@ public class Game {
 	}
 
 	int x = 0;
-	int y = 10;
+	int y = 15;
 
 	public void start() {
 		this.hasStarted = true;
-		y = 10;
+		y = 15;
 		x = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(JavaPlugin.getPlugin(Smashplex.class),
 				new Runnable() {
 					public void run() {
@@ -96,7 +96,15 @@ public class Game {
 							for (int i = 0; i < list.size(); i++) {
 								Player p = list.get(i);
 								TextUtil.sendTitle(p, ChatColor.YELLOW + "Game starting in...");
-								TextUtil.sendSubTitle(p, ChatColor.YELLOW + "" + y);
+								ChatColor time;
+								if (y > 5) {
+									time = ChatColor.GREEN;
+								} else if (y > 2) {
+									time = ChatColor.YELLOW;
+								} else {
+									time = ChatColor.RED;
+								}
+								TextUtil.sendSubTitle(p, time + "" + y);
 								TextUtil.sendTitleTime(p, 0, 25, 5);
 							}
 							y--;
@@ -109,6 +117,9 @@ public class Game {
 								if (sp != null) {
 									sp.preparePlayer(2);
 								}
+								TextUtil.sendTitle(p, ChatColor.GREEN + "GO!");
+								TextUtil.sendSubTitle(p, ChatColor.YELLOW + "Knock off or kill other players to win!");
+								TextUtil.sendTitleTime(p, 0, 25, 5);
 							}
 							Bukkit.getServer().getScheduler().cancelTask(x);
 						}
