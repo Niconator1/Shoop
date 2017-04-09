@@ -45,4 +45,9 @@ public class Map {
 	public void setVoidLimit(double i) {
 		this.deadheight = i;
 	}
+
+	public Location getRandomSpawnPosition() {
+		int x = spawnpos.length;
+		return spawnpos[(int) (Math.random()*x)];
+	}
 }

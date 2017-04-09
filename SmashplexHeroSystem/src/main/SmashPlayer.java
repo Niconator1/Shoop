@@ -27,6 +27,7 @@ public class SmashPlayer {
 	private Player p;
 	private Hero h;
 	private int jumps = 2;
+	private int lives = 3;
 	private double maxhp;
 
 	public SmashPlayer(Player p, double maxhp) {
@@ -55,8 +56,12 @@ public class SmashPlayer {
 		this.jumps = jumps;
 	}
 
-	public void giveHeroItems() {
+	public void setLives(int a) {
+		this.lives = a;
+	}
 
+	public int getLives() {
+		return lives;
 	}
 
 	public void doPrimary() {
@@ -88,9 +93,15 @@ public class SmashPlayer {
 				double health = (getHP() - amount) / (maxhp) * p.getMaxHealth();
 				p.setHealth(health);
 			} else {
-				p.setHealth(20);
-				p.sendMessage(ChatColor.YELLOW + "You died.");
-				p.teleport(p.getWorld().getSpawnLocation());
+				Game g = Smashplex.getGame(p);
+				if (g != null && g.hasBegan()) {
+					g.hasDied(this);
+				} else {
+					p.setHealth(20);
+					p.sendMessage(ChatColor.YELLOW + "You died.");
+					p.teleport(p.getWorld().getSpawnLocation());
+
+				}
 				h.doDeathSound();
 			}
 		}
@@ -143,6 +154,7 @@ public class SmashPlayer {
 
 	public void resetHero(boolean full) {
 		jumps = 2;
+		lives = 3;
 		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
 			Cooldown c = Smashplex.cooldown.get(i);
 			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {

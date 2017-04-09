@@ -158,4 +158,21 @@ public class Game {
 			leave(p);
 		}
 	}
+
+	public void hasDied(SmashPlayer sp) {
+		if (sp.getLives() > 0) {
+			if (sp != null) {
+				sp.preparePlayer(1);
+			}
+			Respawn r = new Respawn(sp.getPlayer(), map.getRandomSpawnPosition());
+			r.startCountdown();
+			sp.setLives(sp.getLives() - 1);
+		} else {
+			// TODO: Add infinite spectation until game ends
+		}
+	}
+
+	public Map getMap() {
+		return map;
+	}
 }

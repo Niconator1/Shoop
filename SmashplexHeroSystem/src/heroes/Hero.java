@@ -106,6 +106,10 @@ public abstract class Hero {
 			p.getInventory().setItem(0, getPrimary(0));
 			p.getInventory().setItem(1, getSecondary(0));
 			p.getInventory().setItem(2, getSmash(0));
+		} else {
+			p.getInventory().setItem(0, null);
+			p.getInventory().setItem(1, null);
+			p.getInventory().setItem(2, null);
 		}
 	}
 

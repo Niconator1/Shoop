@@ -256,14 +256,16 @@ public class EventManager implements Listener {
 
 	@EventHandler
 	public void onMove(PlayerMoveEvent event) {
+		UUID to = event.getTo().getWorld().getUID();
+		UUID from = event.getFrom().getWorld().getUID();
 		Player p = event.getPlayer();
 		SmashPlayer sp = Smashplex.getSmashPlayer(p);
 		if (sp != null) {
 			if (sp.getSelectedHero() != null) {
-				Entity e = (Entity) p;
-				if (e.isOnGround()) {
-					Game g = Smashplex.getGame(p);
-					if (g != null && g.hasBegan()) {
+				Game g = Smashplex.getGame(p);
+				if (g != null && g.hasBegan()) {
+					Entity e = (Entity) p;
+					if (e.isOnGround()) {
 						p.setAllowFlight(true);
 						sp.setJumps(2);
 						if (sp.getSelectedHero().getNumber() == 1) {
@@ -271,11 +273,16 @@ public class EventManager implements Listener {
 							s.setFlameJumps(0);
 						}
 					}
+					Map m = g.getMap();
+					if (to.compareTo(m.getLobbyLocation().getWorld().getUID()) == 0) {
+						System.out.println(event.getTo().getY() + " " + m.getVoidLimit());
+						if (event.getTo().getY() < m.getVoidLimit()) {
+							sp.damage(120.0);
+						}
+					}
 				}
 			}
 		}
-		UUID to = event.getTo().getWorld().getUID();
-		UUID from = event.getFrom().getWorld().getUID();
 		for (int i = 0; i < Smashplex.npcs.size(); i++) {
 			NPC n = Smashplex.npcs.get(i);
 			UUID npc = n.getLocation().getWorld().getUID();
