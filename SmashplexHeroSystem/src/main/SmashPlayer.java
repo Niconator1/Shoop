@@ -115,24 +115,33 @@ public class SmashPlayer {
 			break;
 		}
 		if (h != null && prepare) {
-			preparePlayer();
+			preparePlayer(2);
 		}
 	}
 
-	public void preparePlayer() {
+	public void preparePlayer(int step) {
 		if (h != null) {
-			p.setAllowFlight(true);
-			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
-			p.setWalkSpeed(0.4f);
-			p.getInventory().setHeldItemSlot(0);
-			h.initialize();
-			h.giveItems();
-			Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
-			Smashplex.cooldown.add(c);
+			if (step >= 0) {
+				p.setAllowFlight(false);
+				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
+				p.setWalkSpeed(0.4f);
+			}
+			if (step >= 1) {
+				h.giveItems(true);
+			}
+			if (step >= 2) {
+				p.setAllowFlight(true);
+				p.getInventory().setHeldItemSlot(0);
+				h.initialize();
+				h.giveItems(false);
+				Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
+				Smashplex.cooldown.add(c);
+			}
+
 		}
 	}
 
-	public void resetHero() {
+	public void resetHero(boolean full) {
 		jumps = 2;
 		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
 			Cooldown c = Smashplex.cooldown.get(i);
@@ -141,7 +150,9 @@ public class SmashPlayer {
 			}
 		}
 		h.resetHero();
-		h = null;
+		if (full) {
+			h = null;
+		}
 	}
 
 	public int getSelectedNumber() {

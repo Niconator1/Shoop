@@ -25,6 +25,10 @@ public class Game {
 		list.add(p);
 		sendGameMessage(p.getName() + ChatColor.YELLOW + " has joined (" + ChatColor.AQUA + list.size()
 				+ ChatColor.YELLOW + "/" + ChatColor.AQUA + map.getMaxPlayerCount() + ChatColor.YELLOW + ")");
+		SmashPlayer sp = Smashplex.getSmashPlayer(p);
+		if (sp != null) {
+			sp.preparePlayer(1);
+		}
 		p.teleport(map.getLobbyLocation());
 	}
 
@@ -45,7 +49,7 @@ public class Game {
 				SmashPlayer sp = Smashplex.getSmashPlayer(p);
 				if (sp != null) {
 					if (sp.getSelectedHero() != null) {
-						sp.resetHero();
+						sp.resetHero(false);
 					}
 				}
 			}
@@ -103,7 +107,7 @@ public class Game {
 								Player p = list.get(i);
 								SmashPlayer sp = Smashplex.getSmashPlayer(p);
 								if (sp != null) {
-									sp.preparePlayer();
+									sp.preparePlayer(2);
 								}
 							}
 							Bukkit.getServer().getScheduler().cancelTask(x);

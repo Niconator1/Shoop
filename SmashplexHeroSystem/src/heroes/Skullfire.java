@@ -378,8 +378,8 @@ public class Skullfire extends Hero {
 	}
 
 	@Override
-	public void giveItems() {
-		super.giveItems();
+	public void giveItems(boolean lobby) {
+		super.giveItems(lobby);
 		getPlayer().getInventory().setItem(0, getPrimary(bullets));
 	}
 

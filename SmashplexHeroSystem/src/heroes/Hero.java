@@ -97,14 +97,16 @@ public abstract class Hero {
 		return nr;
 	}
 
-	public void giveItems() {
+	public void giveItems(boolean lobby) {
 		p.getInventory().setHelmet(getHelmet());
 		p.getInventory().setChestplate(getChestplate());
 		p.getInventory().setLeggings(getLeggings());
 		p.getInventory().setBoots(getBoots());
-		p.getInventory().setItem(0, getPrimary(0));
-		p.getInventory().setItem(1, getSecondary(0));
-		p.getInventory().setItem(2, getSmash(0));
+		if (lobby == false) {
+			p.getInventory().setItem(0, getPrimary(0));
+			p.getInventory().setItem(1, getSecondary(0));
+			p.getInventory().setItem(2, getSmash(0));
+		}
 	}
 
 	public void resetHero() {

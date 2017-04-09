@@ -147,43 +147,46 @@ public class EventManager implements Listener {
 		SmashPlayer sp = Smashplex.getSmashPlayer(p);
 		if (sp != null) {
 			if (sp.getSelectedHero() != null) {
-				if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
-					if (sp.getRemainingJumps() > 0 || sp.getSelectedHero().getNumber() == 1
-							&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() > 0) {
-						double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
-						double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
-						double x = Math.sin(pitch) * Math.cos(yaw);
-						double y = Math.cos(pitch);
-						double z = Math.sin(pitch) * Math.sin(yaw);
-						Vector v = new Vector(x, y, z).normalize().multiply(0.787);
-						p.setVelocity(new Vector(v.getX(), 0.865, v.getZ()));
-						event.setCancelled(true);
-						sp.setJumps(sp.getRemainingJumps() - 1);
-						SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation());
-						if (sp.getSelectedHero().getNumber() == 1
+				Game g = Smashplex.getGame(p);
+				if (g != null && g.hasBegan()) {
+					if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
+						if (sp.getRemainingJumps() > 0 || sp.getSelectedHero().getNumber() == 1
 								&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() > 0) {
-							Skullfire s = (Skullfire) sp.getSelectedHero();
-							new FlameJump(p.getLocation()).doJump();
-							s.setFlameJumps(s.getFlameJumps() - 1);
-						} else {
-							for (int i = 0; i < 20; i++) {
-								double radius = 1.0;
-								double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
-								double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
-								if (sp.getSelectedHero().getNumber() == 1) {
-									ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE,
-											p.getLocation().add(cx, 0, cz), 2);
-								} else {
-									ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD,
-											p.getLocation().add(cx, 0, cz), 2);
-								}
+							double pitch = ((p.getLocation().getPitch() + 90.0) * Math.PI) / 180.0;
+							double yaw = ((p.getLocation().getYaw() + 90.0) * Math.PI) / 180.0;
+							double x = Math.sin(pitch) * Math.cos(yaw);
+							double y = Math.cos(pitch);
+							double z = Math.sin(pitch) * Math.sin(yaw);
+							Vector v = new Vector(x, y, z).normalize().multiply(0.787);
+							p.setVelocity(new Vector(v.getX(), 0.865, v.getZ()));
+							event.setCancelled(true);
+							sp.setJumps(sp.getRemainingJumps() - 1);
+							SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation());
+							if (sp.getSelectedHero().getNumber() == 1
+									&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() > 0) {
+								Skullfire s = (Skullfire) sp.getSelectedHero();
+								new FlameJump(p.getLocation()).doJump();
+								s.setFlameJumps(s.getFlameJumps() - 1);
+							} else {
+								for (int i = 0; i < 20; i++) {
+									double radius = 1.0;
+									double cx = Math.sin(((double) i) / 20.0 * Math.PI * 2.0) * radius;
+									double cz = Math.cos(((double) i) / 20.0 * Math.PI * 2.0) * radius;
+									if (sp.getSelectedHero().getNumber() == 1) {
+										ParticleUtil.sendPublicParticlePacket(EnumParticle.SMOKE_LARGE,
+												p.getLocation().add(cx, 0, cz), 2);
+									} else {
+										ParticleUtil.sendPublicParticlePacket(EnumParticle.CLOUD,
+												p.getLocation().add(cx, 0, cz), 2);
+									}
 
+								}
 							}
-						}
-						if (sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() != 1
-								|| sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() == 1
-										&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() <= 0) {
-							p.setAllowFlight(false);
+							if (sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() != 1
+									|| sp.getRemainingJumps() <= 0 && sp.getSelectedHero().getNumber() == 1
+											&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() <= 0) {
+								p.setAllowFlight(false);
+							}
 						}
 					}
 				}
@@ -259,11 +262,14 @@ public class EventManager implements Listener {
 			if (sp.getSelectedHero() != null) {
 				Entity e = (Entity) p;
 				if (e.isOnGround()) {
-					p.setAllowFlight(true);
-					sp.setJumps(2);
-					if (sp.getSelectedHero().getNumber() == 1) {
-						Skullfire s = (Skullfire) sp.getSelectedHero();
-						s.setFlameJumps(0);
+					Game g = Smashplex.getGame(p);
+					if (g != null && g.hasBegan()) {
+						p.setAllowFlight(true);
+						sp.setJumps(2);
+						if (sp.getSelectedHero().getNumber() == 1) {
+							Skullfire s = (Skullfire) sp.getSelectedHero();
+							s.setFlameJumps(0);
+						}
 					}
 				}
 			}
