@@ -161,7 +161,7 @@ public class EventManager implements Listener {
 							p.setVelocity(new Vector(v.getX(), 0.865, v.getZ()));
 							event.setCancelled(true);
 							sp.setJumps(sp.getRemainingJumps() - 1);
-							SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation());
+							SoundUtil.sendPublicSoundPacket("mob.bat.takeoff", p.getLocation(), 0.74603176f);
 							if (sp.getSelectedHero().getNumber() == 1
 									&& ((Skullfire) sp.getSelectedHero()).getFlameJumps() > 0) {
 								Skullfire s = (Skullfire) sp.getSelectedHero();
@@ -250,6 +250,17 @@ public class EventManager implements Listener {
 						}
 					}
 				}
+			} else if (e.getAction() == Action.LEFT_CLICK_AIR) {
+				Player p = e.getPlayer();
+				SmashPlayer sp = Smashplex.getSmashPlayer(p);
+				if (sp != null) {
+					if (sp.getSelectedHero() != null) {
+						Game g = Smashplex.getGame(p);
+						if (g != null) {
+							SoundUtil.sendPublicSoundPacket("melee.punch.meleemiss", p.getLocation());
+						}
+					}
+				}
 			}
 		}
 	}
@@ -263,7 +274,7 @@ public class EventManager implements Listener {
 		if (sp != null) {
 			if (sp.getSelectedHero() != null) {
 				Game g = Smashplex.getGame(p);
-				if (g != null && g.hasBegan()) {
+				if (g != null && g.hasBegan() && sp.getLives() > 0) {
 					Entity e = (Entity) p;
 					if (e.isOnGround()) {
 						p.setAllowFlight(true);
@@ -275,7 +286,6 @@ public class EventManager implements Listener {
 					}
 					Map m = g.getMap();
 					if (to.compareTo(m.getLobbyLocation().getWorld().getUID()) == 0) {
-						System.out.println(event.getTo().getY() + " " + m.getVoidLimit());
 						if (event.getTo().getY() < m.getVoidLimit()) {
 							sp.damage(120.0);
 						}
@@ -347,39 +357,41 @@ public class EventManager implements Listener {
 		if (sp != null) {
 			if (sp.getSelectedHero() != null) {
 				Game g = Smashplex.getGame(p);
-				if (g != null && g.hasBegan()) {
-					if (event.getNewSlot() == 1) {
-						if (Smashplex.isSecondaryReady(p)) {
-							if (Smashplex.smash) {
-								sp.doSecondary();
-							}
-						} else {
-							for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-								Cooldown c = Smashplex.cooldown.get(i);
-								if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-									if (c.getSkill() == 1) {
-										long time = Math.round(c.getTicks() / 20.0);
-										p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
-												+ " seconds remaining");
+				if (g != null && g.isRunning()) {
+					if (g.hasBegan()) {
+						if (event.getNewSlot() == 1) {
+							if (Smashplex.isSecondaryReady(p)) {
+								if (Smashplex.smash) {
+									sp.doSecondary();
+								}
+							} else {
+								for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+									Cooldown c = Smashplex.cooldown.get(i);
+									if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+										if (c.getSkill() == 1) {
+											long time = Math.round(c.getTicks() / 20.0);
+											p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
+													+ " seconds remaining");
+										}
 									}
 								}
 							}
-						}
 
-					} else if (event.getNewSlot() == 2) {
-						if (Smashplex.isSmashReady(p)) {
-							if (Smashplex.smash) {
-								sp.doSmash();
-							}
-						} else {
-							for (int i = 0; i < Smashplex.cooldown.size(); i++) {
-								Cooldown c = Smashplex.cooldown.get(i);
-								if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
-									if (c.getSkill() == 2) {
-										long time = Math.round(c.getTicks() / 20.0);
-										p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
-												+ " seconds remaining");
-										SoundUtil.sendSoundPacket(p, "SmashCrystal.notready", p.getLocation());
+						} else if (event.getNewSlot() == 2) {
+							if (Smashplex.isSmashReady(p)) {
+								if (Smashplex.smash) {
+									sp.doSmash();
+								}
+							} else {
+								for (int i = 0; i < Smashplex.cooldown.size(); i++) {
+									Cooldown c = Smashplex.cooldown.get(i);
+									if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {
+										if (c.getSkill() == 2) {
+											long time = Math.round(c.getTicks() / 20.0);
+											p.sendMessage(ChatColor.YELLOW + "You can't use that yet! " + time
+													+ " seconds remaining");
+											SoundUtil.sendSoundPacket(p, "SmashCrystal.notready", p.getLocation());
+										}
 									}
 								}
 							}
@@ -408,6 +420,7 @@ public class EventManager implements Listener {
 							Game g = Smashplex.getGame(p);
 							if (g != null && g.hasBegan() && g.hasPlayer(p2)) {
 								double dmg = enemy.getSelectedHero().getMeleeDamage();
+								SoundUtil.sendPublicSoundPacket("melee.punch.meleehit", p.getLocation());
 								sp.damage(dmg);
 							}
 						}

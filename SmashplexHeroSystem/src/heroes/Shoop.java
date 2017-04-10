@@ -43,6 +43,14 @@ public class Shoop extends Hero {
 	}
 
 	@Override
+	public void initialize() {
+		if (getPlayer() != null) {
+			getPlayer().setLevel(100);
+			getPlayer().setExp(0.9999f);
+		}
+	}
+
+	@Override
 	public ItemStack getHelmet() {
 		if (isMasterSkin()) {
 			ItemStack is = new ItemStack(Material.WOOL, 1, (short) 7);
@@ -343,7 +351,7 @@ public class Shoop extends Hero {
 
 	@Override
 	public void doDamageSound() {
-		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.pain", 1f);
+		SoundUtil.sendPublicSoundPacket("ShoopDaWhoop.pain", getPlayer().getLocation(), 1f);
 	}
 
 	@Override

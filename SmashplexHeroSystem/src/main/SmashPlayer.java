@@ -100,7 +100,7 @@ public class SmashPlayer {
 					p.setHealth(20);
 					p.sendMessage(ChatColor.YELLOW + "You died.");
 					p.teleport(p.getWorld().getSpawnLocation());
-
+					SoundUtil.sendSoundPacket(p, "mob.endermen.portal", p.getLocation(), 0f);
 				}
 				h.doDeathSound();
 			}
@@ -141,20 +141,25 @@ public class SmashPlayer {
 				h.giveItems(true);
 			}
 			if (step >= 2) {
-				p.setAllowFlight(true);
 				p.getInventory().setHeldItemSlot(0);
 				h.initialize();
 				h.giveItems(false);
+			}
+			if (step >= 3) {
+				p.setAllowFlight(true);
+			}
+			if (step >= 4) {
 				Cooldown c = new Cooldown(p, 2, h.getSmashCooldown());
 				Smashplex.cooldown.add(c);
 			}
-
 		}
 	}
 
-	public void resetHero(boolean full) {
+	public void resetHero(boolean full, boolean lives) {
 		jumps = 2;
-		lives = 3;
+		if (lives) {
+			this.lives = 3;
+		}
 		for (int i = 0; i < Smashplex.cooldown.size(); i++) {
 			Cooldown c = Smashplex.cooldown.get(i);
 			if (c.getPlayer().getUniqueId().compareTo(p.getUniqueId()) == 0) {

@@ -19,7 +19,7 @@ public class SmashHeroRemoveCommand extends SCommand {
 			SmashPlayer sp = Smashplex.getSmashPlayer(p);
 			if (sp != null) {
 				if (sp.getSelectedHero() != null) {
-					sp.resetHero(true);
+					sp.resetHero(true, true);
 				}
 				sender.sendMessage("Your selected hero was reseted");
 				return true;

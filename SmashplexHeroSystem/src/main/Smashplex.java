@@ -144,8 +144,14 @@ public class Smashplex extends JavaPlugin {
 							SmashPlayer sp = getSmashPlayer(p);
 							if (sp != null) {
 								if (sp.getSelectedHero() != null) {
-									p.getInventory().setItem(1, sp.getSelectedHero()
-											.getSecondary(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+									Game g = getGame(p);
+									if (g != null && g.hasBegan()) {
+										Respawn r = g.getRespawn(p);
+										if (r == null) {
+											p.getInventory().setItem(1, sp.getSelectedHero().getSecondary(
+													1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+										}
+									}
 								}
 							}
 						}
@@ -154,8 +160,14 @@ public class Smashplex extends JavaPlugin {
 							SmashPlayer sp = getSmashPlayer(p);
 							if (sp != null) {
 								if (sp.getSelectedHero() != null) {
-									p.getInventory().setItem(2, sp.getSelectedHero()
-											.getSmash(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+									Game g = getGame(p);
+									if (g != null && g.hasBegan()) {
+										Respawn r = g.getRespawn(p);
+										if (r == null) {
+											p.getInventory().setItem(2, sp.getSelectedHero()
+													.getSmash(1.0 - (double) c.getTicks() / (double) c.getMaxTicks()));
+										}
+									}
 								}
 							}
 						}
@@ -168,7 +180,13 @@ public class Smashplex extends JavaPlugin {
 									if (sp.getSelectedHero().getNumber() == 1) {
 										Skullfire s = (Skullfire) sp.getSelectedHero();
 										s.setBullets(7);
-										p.getInventory().setItem(0, s.getPrimary(s.getBullets()));
+										Game g = getGame(p);
+										if (g != null && g.hasBegan()) {
+											Respawn r = g.getRespawn(p);
+											if (r == null) {
+												p.getInventory().setItem(0, s.getPrimary(s.getBullets()));
+											}
+										}
 									}
 								}
 							}
@@ -177,7 +195,13 @@ public class Smashplex extends JavaPlugin {
 								SmashPlayer sp = getSmashPlayer(p);
 								if (sp != null) {
 									if (sp.getSelectedHero() != null) {
-										p.getInventory().setItem(1, sp.getSelectedHero().getSecondary(1.0));
+										Game g = getGame(p);
+										if (g != null && g.hasBegan()) {
+											Respawn r = g.getRespawn(p);
+											if (r == null) {
+												p.getInventory().setItem(1, sp.getSelectedHero().getSecondary(1.0));
+											}
+										}
 									}
 								}
 							}
@@ -186,11 +210,19 @@ public class Smashplex extends JavaPlugin {
 								SmashPlayer sp = getSmashPlayer(p);
 								if (sp != null) {
 									if (sp.getSelectedHero() != null) {
-										p.getInventory().setItem(2, sp.getSelectedHero().getSmash(1.0));
-										TextUtil.sendSubTitle(p,
-												ChatColor.GREEN + "SMASH READY! " + ChatColor.AQUA + "Press [3]");
-										TextUtil.sendTitleTime(p, 0, 25, 5);
-										SoundUtil.sendSoundPacket(p, "mob.wither.spawn", p.getLocation(), 2f);
+										Game g = getGame(p);
+										if (g != null && g.hasBegan()) {
+											Respawn r = g.getRespawn(p);
+											if (r != null) {
+												r.setSmashEffect(true);
+											} else {
+												p.getInventory().setItem(2, sp.getSelectedHero().getSmash(1.0));
+												TextUtil.sendSubTitle(p, ChatColor.GREEN + "SMASH READY! "
+														+ ChatColor.AQUA + "Press [3]");
+												TextUtil.sendTitleTime(p, 0, 25, 5);
+												SoundUtil.sendSoundPacket(p, "mob.wither.spawn", p.getLocation(), 2f);
+											}
+										}
 									}
 								}
 							}
@@ -207,7 +239,7 @@ public class Smashplex extends JavaPlugin {
 					SmashPlayer sp = getSmashPlayer(p);
 					if (sp != null) {
 						Game g = getGame(p);
-						if (g != null && g.hasBegan()) {
+						if (g != null && g.hasBegan() && sp.getLives() > 0) {
 							if (sp.getSelectedHero() != null) {
 								if (sp.getSelectedHero().getNumber() != 1) {
 									if (p.getLevel() < 100) {
@@ -248,18 +280,6 @@ public class Smashplex extends JavaPlugin {
 				}
 			}
 		}, 0, 1);
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			public void run() {
-				// Game start
-				for (int i = 0; i < gamelist.size(); i++) {
-					Game g = gamelist.get(i);
-					if (g.isFull() && !g.isRunning()) {
-						g.start();
-					}
-				}
-			}
-		}, 0, 1);
-
 	}
 
 	public static boolean isPrimaryReady(Player p) {

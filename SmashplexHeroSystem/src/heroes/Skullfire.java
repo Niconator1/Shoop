@@ -42,6 +42,7 @@ public class Skullfire extends Hero {
 	public Skullfire(Player p, boolean ms) {
 		super(p, "Skullfire", smashticks, 1, ms);
 	}
+
 	@Override
 	public void initialize() {
 		if (getPlayer() != null) {
@@ -361,7 +362,7 @@ public class Skullfire extends Hero {
 
 	@Override
 	public void doDamageSound() {
-		SoundUtil.sendPublicSoundPacket("Skullfire.pain", 1f);
+		SoundUtil.sendPublicSoundPacket("Skullfire.pain", getPlayer().getLocation(), 1f);
 	}
 
 	@Override
