@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import main.Game;
 import main.MapRegistry;
+import main.SmashPlayer;
 import main.Smashplex;
 
 public class SmashGameCommand extends SCommand {
@@ -21,18 +22,23 @@ public class SmashGameCommand extends SCommand {
 					Player p = (Player) sender;
 					if (args.length > 0) {
 						if (args[0].equals("join")) {
-							if (Smashplex.getGame(p) != null) {
-								p.sendMessage(ChatColor.YELLOW + "You are already in a game");
-							} else {
-								Game g = Smashplex.getFreeGame();
-								if (g != null) {
-									g.join(p);
+							SmashPlayer sp = Smashplex.getSmashPlayer(p);
+							if (sp != null && sp.getSelectedHero() != null) {
+								if (Smashplex.getGame(p) != null) {
+									p.sendMessage(ChatColor.YELLOW + "You are already in a game");
 								} else {
-									Game ng = new Game(MapRegistry.getRandomMap());
-									ng.join(p);
-									Smashplex.gamelist.add(ng);
+									Game g = Smashplex.getFreeGame();
+									if (g != null) {
+										g.join(p);
+									} else {
+										Game ng = new Game(MapRegistry.getRandomMap());
+										ng.join(p);
+										Smashplex.gamelist.add(ng);
+									}
+									return true;
 								}
-								return true;
+							} else {
+								sender.sendMessage("You have to select a hero first");
 							}
 						} else if (args[0].equals("leave")) {
 							if (Smashplex.getGame(p) != null) {

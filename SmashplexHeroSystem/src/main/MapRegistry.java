@@ -10,7 +10,7 @@ public class MapRegistry {
 		kingdom.setLobbyLocation(new Location(Bukkit.getWorld("Kingdom"), 0, 84, 0));
 		kingdom.setSpawnLocations(new Location[] { new Location(Bukkit.getWorld("Kingdom"), 1.5, 62, -21.5),
 				new Location(Bukkit.getWorld("Kingdom"), 25.5, 63, -2.5),
-				new Location(Bukkit.getWorld("Kingdom"), -0.5, 63, 22.5),
+				new Location(Bukkit.getWorld("Kingdom"), -0.5, 62, 22.5),
 				new Location(Bukkit.getWorld("Kingdom"), -24.5, 63, 3.5) });
 		kingdom.setVoidLimit(0.0);
 		Smashplex.maplist.add(kingdom);
