@@ -323,8 +323,8 @@ public class Shoop extends Hero {
 						}
 					}
 				}
-				charges = 0;
 			}
+			charges = 0;
 		}
 	}
 

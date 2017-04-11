@@ -358,6 +358,7 @@ public class EventManager implements Listener {
 			if (sp.getSelectedHero() != null) {
 				Game g = Smashplex.getGame(p);
 				if (g != null && g.isRunning()) {
+					p.getInventory().setHeldItemSlot(0);
 					if (g.hasBegan()) {
 						if (event.getNewSlot() == 1) {
 							if (Smashplex.isSecondaryReady(p)) {
@@ -376,7 +377,6 @@ public class EventManager implements Listener {
 									}
 								}
 							}
-
 						} else if (event.getNewSlot() == 2) {
 							if (Smashplex.isSmashReady(p)) {
 								if (Smashplex.smash) {
@@ -397,7 +397,6 @@ public class EventManager implements Listener {
 							}
 						}
 					}
-					p.getInventory().setHeldItemSlot(0);
 				}
 			}
 		}

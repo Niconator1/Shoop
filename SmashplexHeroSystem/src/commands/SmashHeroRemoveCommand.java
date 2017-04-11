@@ -3,6 +3,7 @@ package commands;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import main.Game;
 import main.SmashPlayer;
 import main.Smashplex;
 
@@ -19,10 +20,16 @@ public class SmashHeroRemoveCommand extends SCommand {
 			SmashPlayer sp = Smashplex.getSmashPlayer(p);
 			if (sp != null) {
 				if (sp.getSelectedHero() != null) {
-					sp.resetHero(true, true);
+					Game g = Smashplex.getGame(p);
+					if(g==null){
+						sp.resetHero(true, true);
+						sender.sendMessage("Your selected hero was reseted");
+						return true;
+					}
+					else{
+						sender.sendMessage("You can not reset your hero while playing a game");
+					}
 				}
-				sender.sendMessage("Your selected hero was reseted");
-				return true;
 			} else {
 				sender.sendMessage("Error #0 please contact NiconatorTM");
 			}

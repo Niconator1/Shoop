@@ -136,6 +136,7 @@ public class SmashPlayer {
 				p.setAllowFlight(false);
 				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
 				p.setWalkSpeed(0.4f);
+				p.setGameMode(GameMode.ADVENTURE);
 			}
 			if (step >= 1) {
 				h.giveItems(true);

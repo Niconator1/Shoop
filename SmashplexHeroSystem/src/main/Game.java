@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,6 +58,7 @@ public class Game {
 				list.remove(i);
 				sendGameMessage(p.getName() + ChatColor.YELLOW + " has quit");
 				t.teleport(Bukkit.getWorld("lobby").getSpawnLocation());
+				p.setGameMode(GameMode.SURVIVAL);
 				SmashPlayer sp = Smashplex.getSmashPlayer(p);
 				if (sp != null) {
 					if (sp.getSelectedHero() != null) {
@@ -191,6 +193,7 @@ public class Game {
 	public void hasDied(SmashPlayer sp) {
 		Player p = sp.getPlayer();
 		sp.setLives(sp.getLives() - 1);
+		p.setHealth(20);
 		if (sp.getLives() > 0) {
 			if (sp != null) {
 				sp.preparePlayer(1);
