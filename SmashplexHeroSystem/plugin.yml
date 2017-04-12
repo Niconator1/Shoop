@@ -6,6 +6,7 @@ description: >
 author: Niconator1
 main: main.Smashplex
 load: POSTWORLD
+depend: [Multiverse-Core, ProtocolLib]
 
 commands:
     smash:

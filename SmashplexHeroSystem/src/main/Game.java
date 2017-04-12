@@ -32,13 +32,17 @@ public class Game {
 		if (sp != null) {
 			sp.preparePlayer(1);
 		}
+		System.out.println("--------------------------------------------------------");
 		if (isFull() && !isRunning()) {
 			start();
 			p.setVelocity(new Vector(0, 0, 0));
 			Location neu = map.getSpawnPositions()[list.size() - 1].clone();
+			System.out.println(neu);
 			p.teleport(neu);
 			SoundUtil.sendSoundPacket(p, "announcer.joingame", neu);
 		} else {
+			System.out.println(map);
+			System.out.println(map.getLobbyLocation());
 			p.teleport(map.getLobbyLocation());
 			SoundUtil.sendSoundPacket(p, "announcer.joingame", p.getLocation());
 		}
@@ -193,7 +197,6 @@ public class Game {
 	public void hasDied(SmashPlayer sp) {
 		Player p = sp.getPlayer();
 		sp.setLives(sp.getLives() - 1);
-		p.setHealth(20);
 		if (sp.getLives() > 0) {
 			if (sp != null) {
 				sp.preparePlayer(1);
@@ -207,6 +210,7 @@ public class Game {
 			rlist.add(r);
 		} else {
 			// TODO: Add infinite spectation until game ends
+			p.setHealth(20);
 			sp.resetHero(false, false);
 			p.teleport(map.getLobbyLocation());
 			SoundUtil.sendSoundPacket(p, "mob.endermen.portal", map.getLobbyLocation(), 0f);

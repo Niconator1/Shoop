@@ -133,6 +133,7 @@ public class SmashPlayer {
 	public void preparePlayer(int step) {
 		if (h != null) {
 			if (step >= 0) {
+				p.setHealth(20);
 				p.setAllowFlight(false);
 				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 100000, 1, false, false));
 				p.setWalkSpeed(0.4f);
